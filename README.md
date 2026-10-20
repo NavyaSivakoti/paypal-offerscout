@@ -6,7 +6,7 @@ Independent PayPal AI Hackathon prototype for discovering fictional merchant cas
 
 ## Status
 
-Home, merchant Savings directory, floating chatbot, deterministic reward calculations, structured AI backend, server-side PayPal sandbox order/capture flow, and payment result page are implemented. **Live OpenAI extraction passed 12 bounded acceptance checks, and actual PayPal sandbox order creation was verified on October 20, 2026. Buyer approval and completed capture remain unverified.** Missing configuration leaves live features disabled; the rule-based demo remains explicitly labeled. No real purchases or rewards are issued.
+Home, merchant Savings directory, floating chatbot, deterministic reward calculations, structured AI backend, server-side PayPal sandbox order/capture flow, and payment result page are implemented. **Live OpenAI extraction passed 12 bounded acceptance checks, and actual PayPal sandbox order creation was verified on October 20, 2026. An interactive buyer run also returned a confirmed $106 sandbox capture, documented from the user-provided receipt.** Missing configuration leaves live features disabled; the rule-based demo remains explicitly labeled. No real purchases or rewards are issued.
 
 ## Try the interface
 

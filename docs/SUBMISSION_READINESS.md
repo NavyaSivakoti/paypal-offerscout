@@ -8,9 +8,9 @@ Integration and source-publication evidence updated October 20, 2026; see VERIFI
 
 | Requirement | Current evidence | Remaining gate |
 | --- | --- | --- |
-| Central PayPal sandbox integration | Server order/capture flow implemented; actual sandbox authentication and order creation verified | Buyer approval, completed capture, and seller account verification |
+| Central PayPal sandbox integration | Actual sandbox authentication/order creation verified; user-operated approval and $106 completed capture shown in receipt | Seller account reconciliation and hosted cancel/failure checks |
 | Meaningful AI | Actual OpenAI service passed 12 bounded acceptance checks with gpt-4o-mini and offerscout-intent-v4; code controls eligibility and money | Verified for the recorded cases; preserve access during judging and accurately disclose evaluation limits |
-| Working prototype | Home, merchant Savings, floating chat, terms, live AI, and sandbox order creation | Verify hosted end-to-end AI to approved sandbox payment |
+| Working prototype | Home, merchant Savings, floating chat, terms, live AI, and sandbox order creation | AI and completed checkout checked separately; rehearse the continuous AI → selection → approval → receipt demo |
 | Judge access | Owner-private preview deployed | Provide judge-accessible hosting or complete reproducible setup; verify without owner session |
 | Public source + license | Public NavyaSivakoti/paypal-offerscout repository with source, setup instructions, tests, and MIT LICENSE | Verify final submitted commit and license display before submission |
 | Text description + tools | README and architecture documents | Final Devpost description identifying model, prompt version, synthetic data and actual capabilities |

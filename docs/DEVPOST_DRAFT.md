@@ -2,7 +2,7 @@
 
 **Your AI guide to cashback offers.**
 
-Status: working submission draft. Live AI acceptance checks and actual PayPal sandbox order creation are verified. Buyer approval and completed capture remain pending; do not submit this as a fully verified payment flow.
+Status: working submission draft. Live AI acceptance checks and actual PayPal sandbox order creation are verified. An interactive buyer run returned a confirmed $106 sandbox capture. Remaining submission gates are tracked in SUBMISSION_READINESS.md.
 
 ## Inspiration
 
@@ -28,7 +28,7 @@ We separated intent interpretation from money calculations and treated unknown e
 
 ## Validation so far
 
-49 automated checks pass, including independently labeled calculations, merchant/product matching, explicit customer-status handling, amount tampering, invalid model output, pending captures, signed checkout bindings, and sandbox redirect restrictions. Unit-test provider responses are mocked. Separately, 12 hosted acceptance cases passed with the actual OpenAI service, covering shopping and merchant requests, caps, minimums, returning-customer status, unsupported requests, false-reward instructions, tax uncertainty, decimal budgets, and combined merchant/product matching. This small development set is not a general accuracy estimate. The Home, Savings, and floating-chat flows were also checked at desktop and phone-sized widths before credential configuration. Actual PayPal sandbox credentials created an order and an approval link; buyer approval and completed capture remain unverified.
+49 automated checks pass, including independently labeled calculations, merchant/product matching, explicit customer-status handling, amount tampering, invalid model output, pending captures, signed checkout bindings, and sandbox redirect restrictions. Unit-test provider responses are mocked. Separately, 12 hosted acceptance cases passed with the actual OpenAI service, covering shopping and merchant requests, caps, minimums, returning-customer status, unsupported requests, false-reward instructions, tax uncertainty, decimal budgets, and combined merchant/product matching. This small development set is not a general accuracy estimate. The Home, Savings, and floating-chat flows were also checked at desktop and phone-sized widths before credential configuration. Actual PayPal sandbox credentials created an order and an approval link. A user-operated browser run subsequently completed buyer approval, returned to OfferScout, and displayed a confirmed $106 capture receipt. This evidence comes from the user-provided receipt screenshot; the seller dashboard and cancellation/failure paths have not been independently verified.
 
 ## Scope and limitations
 

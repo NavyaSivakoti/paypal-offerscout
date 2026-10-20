@@ -1,6 +1,6 @@
 # OfferScout verification record
 
-Updated October 20, 2026. Hosted AI and sandbox order creation have been checked with actual credentials; buyer approval and completed capture are pending.
+Updated October 20, 2026. Hosted AI and sandbox order creation have been checked with actual credentials. A user-operated buyer run returned a completed $106 sandbox capture receipt.
 
 ## Automated results
 
@@ -21,7 +21,8 @@ Updated October 20, 2026. Hosted AI and sandbox order creation have been checked
 - Initial checks exposed a shopping request misrouted to a cap explanation and a model inference confusing requested deals with customer status. Clearer routing instructions and deterministic customer-status grounding corrected these cases. The model cannot grant eligibility through its output.
 - An exact product and merchant may be represented with category null; the acceptance check requires that both constraints are preserved and only the matching catalog item is returned.
 - The actual PayPal sandbox adapter authenticated and created an order for the $108 Trail & Field sample purchase. The hosted endpoint returned HTTP 200, order `09B461667F888934R`, and a sandbox approval destination.
-- No buyer approval or capture was performed by this check. No completed-payment claim is supported yet. Hosted browser return/cancel behavior and session-cookie continuity still need an interactive buyer run.
+- The programmatic $108 order check did not perform buyer approval or capture. Separately, the user supplied screenshots of a $106 PayPal Sandbox checkout ($99 item + $7 shipping), the return to OfferScout, and the completed capture receipt on October 20, 2026 at approximately 3:28 PM America/Phoenix. This verifies the user-observed happy path through approval, browser return, checkout-cookie continuity, and completed capture. It is not an independent seller-dashboard reconciliation.
+- The user-observed receipt showed order `64J48416CX676231A`, capture `9BP92328W5735391M`, and $106.00 paid. No real purchase or reward was issued.
 - Public source and the MIT license are published at https://github.com/NavyaSivakoti/paypal-offerscout. Credential values were excluded.
 
 ## Redesigned interface browser checks — October 20, 2026 (UTC)
@@ -34,6 +35,13 @@ Updated October 20, 2026. Hosted AI and sandbox order creation have been checked
 - Saving Trail & Field and opening Saved displayed that merchant.
 - A 390 × 844 iframe viewport check confirmed a single-column Savings screen, bottom navigation, floating launcher, usable chat panel, and a completed highest-cashback response. This checks responsive layout, not physical-device or mobile-keyboard behavior.
 - Fixed a browser crash caused by unavailable `crypto.randomUUID` on the HTTP preview. Chat message IDs now use a local counter; checkout request IDs use cryptographically random bytes.
+
+## Checkout interface refresh — October 20, 2026
+
+- Replaced the left-aligned checkout with a centered responsive shell, branded header, checkout progress, clear pending state, and structured capture receipt.
+- Desktop and a 390 × 844 iframe viewport displayed the new confirmation controls without horizontal overflow. This is layout QA, not a physical-device test.
+- In the unconfigured local preview, confirmation displayed an explicit error and returned the button to its usable state; it did not show payment success. The cancellation route displayed its no-capture explanation.
+- Strict TypeScript compilation and all 49 existing automated tests passed after the interface change. The successful $106 hosted receipt above predates this visual refresh; the PayPal adapter is unchanged.
 
 ## Earlier browser checks — October 18, 2026 (America/Phoenix)
 
@@ -50,4 +58,4 @@ Updated October 20, 2026. Hosted AI and sandbox order creation have been checked
 
 ## Pending integration gates
 
-PayPal buyer approval and completed capture, real provider failure handling, deployed return/cancel navigation, and judge access are not verified. The 12-case AI acceptance run is limited to its recorded assertions. Do not claim the prototype is submission-ready until the remaining submission gates are closed.
+Seller-dashboard reconciliation, real provider failure handling, deployed cancellation/failure navigation, and judge access are not verified. Successful buyer approval, deployed return navigation, and capture are supported by the user-provided receipt described above. The 12-case AI acceptance run is limited to its recorded assertions. Do not claim the prototype is submission-ready until the remaining submission gates are closed.
