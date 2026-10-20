@@ -4,7 +4,7 @@ Updated October 20, 2026. Hosted AI and sandbox order creation have been checked
 
 ## Automated results
 
-- 49 tests passed; zero failures, skips, or cancellations.
+- 102 tests passed; zero failures, skips, or cancellations.
 - TypeScript strict compilation passed with `tsc --noEmit`.
 - `git diff --check` passed.
 - Dataset checks cover caps, shipping exclusions, minimum spend, new-customer uncertainty, expiration, cent rounding, zero values, and headline versus effective-cost ranking.
@@ -59,3 +59,14 @@ Updated October 20, 2026. Hosted AI and sandbox order creation have been checked
 ## Pending integration gates
 
 Seller-dashboard reconciliation, real provider failure handling, deployed cancellation/failure navigation, and judge access are not verified. Successful buyer approval, deployed return navigation, and capture are supported by the user-provided receipt described above. The 12-case AI acceptance run is limited to its recorded assertions. Do not claim the prototype is submission-ready until the remaining submission gates are closed.
+
+## Expanded catalog — October 20, 2026
+
+- 150 unique fictional merchants, 600 unique sample purchase offers, four offer kinds, and 28 independently hand-labeled mixed-benefit calculations. The original 15 calculation labels remain executable.
+- All 102 automated tests passed, including schema checks, original offer stability, all 600 PayPal order-body amounts, discounted receipts, family/exact-dollar filters, and bounded results.
+- Local browser QA confirmed 150 merchants, 24 initially rendered cards, 48 after Show more, dollar-discount filtering, search for Brook Footwear Outlet, and generated merchant terms. A rule-based chat request for save $5 applied the fixed-dollar discount filter and a $5 benefit constraint. The v4 live report describes the earlier catalog; current hosted results are below.
+
+- [Current hosted acceptance report](CATALOG_LIVE_ACCEPTANCE_RESULTS.json): 14/14 bounded checks passed against actual gpt-4o-mini with offerscout-intent-v6. They cover new merchants (including names containing category words), four offer kinds, separate benefit/payment amounts, unknown real merchants, and false-reward requests.
+- The first expanded v5 run passed 12/14 exact field checks. Two remaining responses used equivalent family filters (cashback + $5, or headline-rate + no offer type). Matching results were already constrained correctly. Deterministic canonicalization now normalizes those forms; the v6 rerun passed all 14 without relaxing the expected field assertions. This is development validation, not a holdout benchmark.
+- Three actual PayPal sandbox orders were created for fixed cashback, fixed-dollar discounts, and percentage discounts. All returned sandbox approval URLs. These order-creation results are retained from the preceding v5 run; the PayPal adapter did not change for the v6 canonicalization. No buyer approval/capture was performed on these new orders. Do not imply every new offer was captured end-to-end.
+- A subsequent user-provided screenshot of the refreshed receipt showed a completed $108 sandbox capture on the original Trail & Field purchase. Seller-account reconciliation remains unverified.

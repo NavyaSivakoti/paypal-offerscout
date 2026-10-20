@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { demoIntent } from '../../../lib/intent';
+import { demoIntent, normalizeIntent } from '../../../lib/intent';
 import { explainRecommendation } from '../../../lib/recommend';
 import { resolveCustomerStatus } from '../../../lib/customer-status';
 import { interpret, ASSISTANT_PROMPT_VERSION } from '../../../lib/server/assistant';
@@ -10,6 +10,6 @@ export async function POST(request:Request):Promise<Response>{try{
  if(body.mode==='live'&&(!key||!model))throw new AppError('Live AI is not configured. Select the labeled demo mode.',503);
  const interpreted=body.mode==='live'?await interpret(body.prompt,key!,model!):demoIntent(body.prompt);
  const customer=resolveCustomerStatus(body.prompt,body.newCustomer);
- const intent={...interpreted,newCustomer:customer};
+ const intent=normalizeIntent({...interpreted,newCustomer:customer});
  return json({...explainRecommendation(intent,customer),intent,newCustomer:customer,mode:body.mode,model:body.mode==='live'?model:null,promptVersion:ASSISTANT_PROMPT_VERSION});
 }catch(error){return errorResponse(error);}}

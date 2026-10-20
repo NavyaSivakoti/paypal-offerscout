@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { offers } from '../offers.ts';
+import { offers, evaluate } from '../offers.ts';
 import { AppError } from './http.ts';
 const BASE='https://api-m.sandbox.paypal.com';
 const amountSchema=z.object({currency_code:z.literal('USD'),value:z.string()});
@@ -14,17 +14,19 @@ export function config():PaypalConfig {
 }
 export function orderBody(offerId:string,origin:string):object {
  const offer=offers.find(o=>o.id===offerId);if(!offer)throw new AppError('Unknown sample offer.',404);
- return {intent:'CAPTURE',purchase_units:[{custom_id:offer.id,description:`OfferScout fictional demo: ${offer.product}`,amount:{currency_code:'USD',value:((offer.price+offer.shipping)/100).toFixed(2),breakdown:{item_total:{currency_code:'USD',value:(offer.price/100).toFixed(2)},shipping:{currency_code:'USD',value:(offer.shipping/100).toFixed(2)}}},items:[{name:offer.product,quantity:'1',unit_amount:{currency_code:'USD',value:(offer.price/100).toFixed(2)}}]}],payment_source:{paypal:{experience_context:{brand_name:'OfferScout Sandbox Demo',user_action:'PAY_NOW',shipping_preference:'NO_SHIPPING',return_url:`${origin}/checkout`,cancel_url:`${origin}/checkout?cancelled=1`}}}};
+ const value=evaluate(offer,null);
+ if(value.payable<=0)throw new AppError('This sample has no payable amount.',409);
+ return {intent:'CAPTURE',purchase_units:[{custom_id:offer.id,description:`OfferScout fictional demo: ${offer.product}`,amount:{currency_code:'USD',value:(evaluate(offer,null).payable/100).toFixed(2),breakdown:{item_total:{currency_code:'USD',value:((offer.price-value.discount)/100).toFixed(2)},shipping:{currency_code:'USD',value:(offer.shipping/100).toFixed(2)}}},items:[{name:offer.product,quantity:'1',unit_amount:{currency_code:'USD',value:((offer.price-value.discount)/100).toFixed(2)}}]}],payment_source:{paypal:{experience_context:{brand_name:'OfferScout Sandbox Demo',user_action:'PAY_NOW',shipping_preference:'NO_SHIPPING',return_url:`${origin}/checkout`,cancel_url:`${origin}/checkout?cancelled=1`}}}};
 }
 export function assertOrder(order:SandboxOrder,offerId:string):void {
  const offer=offers.find(o=>o.id===offerId);const unit=order.purchase_units[0];
- if(!offer||order.purchase_units.length!==1||unit.custom_id!==offer.id||unit.amount.value!==((offer.price+offer.shipping)/100).toFixed(2))throw new AppError('Order does not match the selected sample offer.',409);
+ if(!offer||order.purchase_units.length!==1||unit.custom_id!==offer.id||unit.amount.value!==(evaluate(offer,null).payable/100).toFixed(2))throw new AppError('Order does not match the selected sample offer.',409);
 }
 export function receipt(order:SandboxOrder,offerId:string):{orderId:string;captureId:string;paidCents:number;status:'COMPLETED';sandbox:true}{
  assertOrder(order,offerId);const captures=order.purchase_units[0].payments?.captures;
  if(order.status!=='COMPLETED'||captures?.length!==1||captures[0].status!=='COMPLETED'||captures[0].amount.value!==order.purchase_units[0].amount.value)throw new AppError('Payment is not confirmed complete. Check the sandbox account before retrying.',409);
  const offer=offers.find(o=>o.id===offerId)!;
- return {orderId:order.id,captureId:captures[0].id,paidCents:offer.price+offer.shipping,status:'COMPLETED',sandbox:true};
+ return {orderId:order.id,captureId:captures[0].id,paidCents:evaluate(offer,null).payable,status:'COMPLETED',sandbox:true};
 }
 export function approvalUrl(order:SandboxOrder):string {
  const href=order.links?.find(l=>l.rel==='payer-action'||l.rel==='approve')?.href;

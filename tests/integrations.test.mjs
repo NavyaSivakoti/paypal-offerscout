@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { z } from 'zod';
 import { createRequestId } from '../lib/request-id.ts';
 import { resolveCustomerStatus } from '../lib/customer-status.ts';
+import { demoOffers, offers, evaluate, offerKind } from '../lib/offers.ts';
 import { demoIntent,intentSchema } from '../lib/intent.ts';
 import { matchingOffers,explainRecommendation } from '../lib/recommend.ts';
 import { interpret } from '../lib/server/assistant.ts';
@@ -24,12 +25,12 @@ test('eligibility comes from explicit declarations or the user setting, never th
   ['I am not a new customer.',null,false],
  ])assert.equal(resolveCustomerStatus(prompt,selected),expected,prompt);
 });
-test('merchant browsing returns one representative per merchant in rate order',()=>{const answer=explainRecommendation(demoIntent('Which merchants have the highest cashback?'),null);assert.deepEqual(answer.offerIds,['offer-0-0','offer-1-0','offer-2-0']);assert.match(answer.answer,/capped at \$5.00/);});
+test('merchant browsing returns one representative per merchant in rate order',()=>{const answer=explainRecommendation(demoIntent('Which merchants have the highest cashback?'),null,demoOffers);assert.deepEqual(answer.offerIds,['offer-0-0','offer-1-0','offer-2-0']);assert.match(answer.answer,/capped at \$5.00/);});
 test('merchant and product constraints are both preserved',()=>{const intent=demoIntent('Cloudstep Road Runner at Trail & Field');assert.equal(intent.searchText,'Cloudstep Road Runner');assert.deepEqual(matchingOffers(intent,null).map(offer=>offer.id),['offer-1-0']);});
-test('assistant and displayed catalog share the same ordering',()=>{const intent=demoIntent('running shoes under $120');assert.deepEqual(explainRecommendation(intent,null).offerIds,matchingOffers(intent,null).map(offer=>offer.id));});
-test('decimal budget preserved; shipping counts toward payable budget',()=>{const intent=demoIntent('running shoes under $105.99');assert.equal(intent.maximumPayableCents,10599);assert.deepEqual(matchingOffers(intent,null),[]);});
+test('assistant and displayed catalog share the same ordering',()=>{const intent=demoIntent('running shoes under $120');assert.deepEqual(explainRecommendation(intent,null).offerIds,matchingOffers(intent,null).slice(0,12).map(offer=>offer.id));});
+test('decimal budget preserved; shipping counts toward payable budget',()=>{const intent=demoIntent('running shoes under $105.99');assert.equal(intent.maximumPayableCents,10599);const results=matchingOffers(intent,null);assert.ok(results.length>0);assert.ok(results.every(o=>evaluate(o,null).payable<=10599));});
 test('budget is never raised to catalog minimum',()=>{const intent=demoIntent('shoes under $20');assert.equal(intent.maximumPayableCents,2000);assert.deepEqual(matchingOffers(intent,null),[]);});
-test('percentage sorting differs from effective cost sorting',()=>{assert.equal(matchingOffers(demoIntent('highest cashback offers'),null)[0].rate,15);assert.equal(matchingOffers(demoIntent('running shoes under $120'),null)[0].id,'offer-1-0');});
+test('percentage sorting differs from effective cost sorting',()=>{assert.equal(matchingOffers(demoIntent('highest cashback offers'),null,demoOffers)[0].rate,15);assert.equal(matchingOffers(demoIntent('running shoes under $120'),null,demoOffers)[0].id,'offer-1-0');});
 test('unsupported product does not receive a fabricated recommendation',()=>{const result=explainRecommendation(demoIntent('laptop under $500'),null);assert.deepEqual(result.offerIds,[]);assert.match(result.answer,/cannot verify/);});
 test('model output cannot add an amount to charge',()=>{assert.equal(intentSchema.safeParse({...demoIntent('shoes'),amountToCharge:1}).success,false);});
 test('AI structured extraction is validated and uses store false',async()=>{let payload;const fake=async(url,init)=>{assert.equal(url,'https://api.openai.com/v1/responses');payload=JSON.parse(init.body);return Response.json({status:'completed',output:[{type:'message',content:[{type:'output_text',text:JSON.stringify(demoIntent('walking shoes'))}]}]});};const result=await interpret('walking shoes','fake-test-key','test-model',fake);assert.equal(result.category,'Walking');assert.equal(payload.store,false);assert.equal(payload.text.format.strict,true);});
