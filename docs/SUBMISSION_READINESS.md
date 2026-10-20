@@ -2,15 +2,17 @@
 
 Reviewed October 18, 2026 against https://paypalaihackathon.devpost.com/rules and https://paypalaihackathon.devpost.com/resources. This is an engineering checklist, not organizer approval or a prediction of a prize.
 
+Integration and source-publication evidence updated October 20, 2026; see VERIFICATION.md and LIVE_ACCEPTANCE_RESULTS.json.
+
 ## Required gates
 
 | Requirement | Current evidence | Remaining gate |
 | --- | --- | --- |
-| Central PayPal sandbox integration | Server create-order, buyer redirect, capture, verified receipt implemented | Configure sandbox credentials; record a real sandbox capture and seller account verification |
-| Meaningful AI | Structured intent extraction using OpenAI Responses API implemented; code calculates amounts | Configure AI credentials/model; run labeled evaluation against the actual model |
-| Working prototype | Directory, search, comparison, terms and demo-mode assistant | Verify hosted end-to-end AI to approved sandbox payment |
+| Central PayPal sandbox integration | Server order/capture flow implemented; actual sandbox authentication and order creation verified | Buyer approval, completed capture, and seller account verification |
+| Meaningful AI | Actual OpenAI service passed 12 bounded acceptance checks with gpt-4o-mini and offerscout-intent-v4; code controls eligibility and money | Verified for the recorded cases; preserve access during judging and accurately disclose evaluation limits |
+| Working prototype | Home, merchant Savings, floating chat, terms, live AI, and sandbox order creation | Verify hosted end-to-end AI to approved sandbox payment |
 | Judge access | Owner-private preview deployed | Provide judge-accessible hosting or complete reproducible setup; verify without owner session |
-| Public source + license | Source retained in managed Git; MIT LICENSE present | Publish a complete public GitHub/GitLab/Bitbucket repository and verify license detection |
+| Public source + license | Public NavyaSivakoti/paypal-offerscout repository with source, setup instructions, tests, and MIT LICENSE | Verify final submitted commit and license display before submission |
 | Text description + tools | README and architecture documents | Final Devpost description identifying model, prompt version, synthetic data and actual capabilities |
 | Under-three-minute public YouTube demo | Suggested sequence below | Record actual working app, upload publicly, verify playback signed out |
 | Availability through judging | Not yet arranged | Keep working demo and funded AI access available free through December 15, 2026 |

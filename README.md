@@ -6,7 +6,7 @@ Independent PayPal AI Hackathon prototype for discovering fictional merchant cas
 
 ## Status
 
-Home, merchant Savings directory, floating chatbot, deterministic reward calculations, structured AI backend, server-side PayPal sandbox order/capture flow, and payment result page are implemented. **Live AI and PayPal have not been exercised with actual credentials.** Missing configuration leaves live features disabled; the rule-based demo remains explicitly labeled. No real purchases or rewards are issued.
+Home, merchant Savings directory, floating chatbot, deterministic reward calculations, structured AI backend, server-side PayPal sandbox order/capture flow, and payment result page are implemented. **Live OpenAI extraction passed 12 bounded acceptance checks, and actual PayPal sandbox order creation was verified on October 20, 2026. Buyer approval and completed capture remain unverified.** Missing configuration leaves live features disabled; the rule-based demo remains explicitly labeled. No real purchases or rewards are issued.
 
 ## Try the interface
 
@@ -41,11 +41,12 @@ pnpm typecheck
 pnpm build
 ```
 
-Tests use injected fake provider responses; they do not spend API credit or contact PayPal. A passing suite is not evidence of a successful real sandbox transaction or model evaluation.
+The 49 automated tests use injected fake provider responses; they do not spend API credit or contact PayPal. Separate [hosted live acceptance results](docs/LIVE_ACCEPTANCE_RESULTS.json) record 12 checks against `gpt-4o-mini` with `offerscout-intent-v4`. These are a small development acceptance set, not a general accuracy estimate or proof of completed payment.
 
 ## Architecture
 
 - `lib/intent.ts`: strict intent schema and explicitly labeled demo parser.
+- `lib/customer-status.ts`: grounds eligibility in an explicit supported first-person declaration or the user's setting. Model-inferred eligibility cannot override these inputs; contradictory declarations become unknown.
 - `lib/server/assistant.ts`: one bounded Responses API call with structured outputs; rejects refusals, malformed output and provider errors. No silent demo fallback. Model name and prompt version are returned to the UI.
 - `lib/recommend.ts`, `lib/offers.ts`: deterministic matching, sorting and integer-cent arithmetic. The AI never sets a payment amount or invokes checkout.
 - `lib/server/paypal.ts`: sandbox-only API adapter; order amounts derived from catalog; signed HttpOnly checkout binding; capture idempotency; amount/status validation before success.
@@ -54,7 +55,7 @@ Tests use injected fake provider responses; they do not spend API credit or cont
 
 ## Data and limitations
 
-All data is fictional. Estimates assume activation and use a visible fixed demo date of October 17, 2026 so judging after offer expiry remains reproducible. Tax is excluded. New-customer eligibility is user-declared, not externally verified. Saved merchants and displayed chat history remain in current-page memory. Each question is interpreted independently; prior chat messages are not sent to the model, so include the merchant, product, or budget in each question. The AI extracts intent; arbitrary real-world offer-term extraction is not implemented.
+All data is fictional. Estimates assume activation and use a visible fixed demo date of October 17, 2026 so judging after offer expiry remains reproducible. Tax is excluded. New-customer eligibility is user-declared, not externally verified. Supported first-person declarations, such as “I am a returning customer,” override the user setting; other phrasing uses the setting, and contradictory declarations remain unknown. Merely requesting new-customer deals does not establish eligibility. Saved merchants and displayed chat history remain in current-page memory. Each question is interpreted independently; prior chat messages are not sent to the model, so include the merchant, product, or budget in each question. The AI extracts intent; arbitrary real-world offer-term extraction is not implemented.
 
 One checkout cookie per browser means starting another checkout replaces the previous binding. No durable order history, webhook reconciliation, fulfillment, reward payout or refunds exists. A failed or pending capture never appears as paid. Hosted access remains owner-private; public access requires a separate review of authentication and persistent usage limits before enabling paid AI calls.
 

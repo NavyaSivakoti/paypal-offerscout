@@ -2,7 +2,7 @@
 
 **Your AI guide to cashback offers.**
 
-Status: working submission draft. Live AI and PayPal verification are still pending. Update the validation section only after those checks are completed; do not submit this as a fully verified integration.
+Status: working submission draft. Live AI acceptance checks and actual PayPal sandbox order creation are verified. Buyer approval and completed capture remain pending; do not submit this as a fully verified payment flow.
 
 ## Inspiration
 
@@ -18,7 +18,7 @@ The implemented checkout creates an order with the PayPal sandbox, asks the buye
 
 ## How we built it
 
-The application uses TypeScript, React, Vinext, and Zod. In live mode, the OpenAI Responses API converts a shopping request into a strict, validated intent schema. Deterministic code selects matching offers, checks the sample conditions, and calculates amounts in integer cents. The model cannot choose a charge amount or approve a payment.
+The application uses TypeScript, React, Vinext, and Zod. In live mode, the OpenAI Responses API converts a shopping request into a strict, validated intent schema. The verified configuration is `gpt-4o-mini` with `offerscout-intent-v4`. Deterministic code selects matching offers, checks the sample conditions, grounds customer status in explicit declarations or the user setting, and calculates amounts in integer cents. The model cannot establish customer eligibility, choose a charge amount, or approve a payment.
 
 The server-side PayPal Orders integration uses only sandbox endpoints, derives amounts from the catalog, binds checkout to a signed HttpOnly cookie, and validates order identity, currency, amount, and completed capture status. Provider failures appear as errors, rather than silently becoming successful payments or demo answers.
 
@@ -28,7 +28,7 @@ We separated intent interpretation from money calculations and treated unknown e
 
 ## Validation so far
 
-47 automated checks pass, including independently labeled calculation examples, merchant/product matching, merchant-only responses, browser-compatible request IDs, amount tampering, invalid model output, pending captures, signed checkout bindings, and sandbox redirect restrictions. The Home, Savings, and floating-chat flows have also been checked in a browser at desktop and phone-sized widths. Provider responses in these tests are mocked. Actual model evaluation and an actual PayPal sandbox transaction remain to be verified.
+49 automated checks pass, including independently labeled calculations, merchant/product matching, explicit customer-status handling, amount tampering, invalid model output, pending captures, signed checkout bindings, and sandbox redirect restrictions. Unit-test provider responses are mocked. Separately, 12 hosted acceptance cases passed with the actual OpenAI service, covering shopping and merchant requests, caps, minimums, returning-customer status, unsupported requests, false-reward instructions, tax uncertainty, decimal budgets, and combined merchant/product matching. This small development set is not a general accuracy estimate. The Home, Savings, and floating-chat flows were also checked at desktop and phone-sized widths before credential configuration. Actual PayPal sandbox credentials created an order and an approval link; buyer approval and completed capture remain unverified.
 
 ## Scope and limitations
 

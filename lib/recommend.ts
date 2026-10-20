@@ -15,11 +15,12 @@ export function explainRecommendation(intent: ShoppingIntent, customer: boolean|
  if(intent.intent==='unsupported')return {answer:'I can compare the fictional shoe offers in this catalog. I cannot verify real merchant offers, invent cashback, or confirm rewards earned. Try a sample merchant, road shoes, trail shoes, or walking shoes.',offerIds:[]};
  const choices=matchingOffers(intent,customer);const best=choices[0];
  if(!best)return {answer:'No sample offers match those conditions. Try a larger budget or another sample merchant. Your budget has not been increased automatically.',offerIds:[]};
+ const eligibilityNote=customer===false?'You declared that you are a returning customer. New-customer-only offers are ineligible and receive $0 estimated rewards. ':'';
  if(intent.maximumPayableCents===null&&!intent.category&&!intent.searchText){
   const representatives=choices.filter((offer,index)=>choices.findIndex(candidate=>candidate.merchant===offer.merchant)===index);
   const summary=representatives.map(offer=>`${offer.merchant}: ${offer.rate}% estimated cashback${offer.cap===null?', no cashback cap in the sample terms':`, capped at ${money(offer.cap)} per order`}.`).join('\n');
-  return {answer:`${summary}\nRates apply to eligible merchandise; purchase minimums and customer restrictions may apply. Open a merchant to inspect the conditions. Dollar savings depend on the purchase and eligibility. These are fictional offers, not cashback earned.`,offerIds:representatives.map(offer=>offer.id)};
+  return {answer:`${eligibilityNote}${summary}\nRates apply to eligible merchandise; purchase minimums and customer restrictions may apply. Open a merchant to inspect the conditions. Dollar savings depend on the purchase and eligibility. These are fictional offers, not cashback earned.`,offerIds:representatives.map(offer=>offer.id)};
  }
  const e=evaluate(best,customer,DEMO_DATE);const criterion=intent.sort==='headline-rate'?'highest headline cashback rate':intent.sort==='payable'?'lowest payment today':'lowest estimated cost after rewards';
- return {answer:`${best.merchant}’s ${best.product} ranks first by ${criterion}. Pay ${money(e.payable)} today, before tax. Estimated rewards: ${money(e.reward)}; estimated cost afterward: ${money(e.effective)}. ${e.reason}. Estimates assume offer activation and use the demo date October 17, 2026. Open the offer terms for the evidence.`,offerIds:choices.map(o=>o.id)};
+ return {answer:`${eligibilityNote}${best.merchant}’s ${best.product} ranks first by ${criterion}. Pay ${money(e.payable)} today, before tax. Estimated rewards: ${money(e.reward)}; estimated cost afterward: ${money(e.effective)}. ${e.reason}. Estimates assume offer activation and use the demo date October 17, 2026. Open the offer terms for the evidence.`,offerIds:choices.map(o=>o.id)};
 }
