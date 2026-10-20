@@ -1,0 +1,1 @@
+export async function GET():Promise<Response>{return Response.json({paypalConfigured:Boolean(process.env.PAYPAL_CLIENT_ID&&process.env.PAYPAL_CLIENT_SECRET&&process.env.APP_ORIGIN),aiConfigured:Boolean(process.env.OPENAI_API_KEY&&process.env.OPENAI_MODEL),environment:'sandbox',demoDate:'2026-10-17'},{headers:{'Cache-Control':'no-store'}});}

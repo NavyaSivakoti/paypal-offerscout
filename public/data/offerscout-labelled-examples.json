@@ -1,0 +1,520 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "provenance": "Entirely synthetic, authored for OfferScout testing; not sourced from PayPal or real merchants.",
+    "currency": "USD",
+    "amountUnit": "integer cents",
+    "evaluationDate": "2026-10-17",
+    "assumptions": [
+      "Tax excluded.",
+      "Activation before purchase is assumed for reward estimates, not verified.",
+      "New-customer status is supplied per case; unknown status gives zero estimated reward for restricted offers.",
+      "Expiry date is inclusive.",
+      "Rewards are estimates, never cashback earned."
+    ]
+  },
+  "offers": [
+    {
+      "id": "capped-15",
+      "merchant": "Stride Supply",
+      "product": "Synthetic comparison shoe",
+      "category": "Road",
+      "price": 11000,
+      "shipping": 0,
+      "rate": 15,
+      "cap": 500,
+      "minimum": 0,
+      "newCustomerOnly": false,
+      "expires": "2026-11-30",
+      "color": "#dce8c9",
+      "terms": "15% on merchandise only; shipping and tax excluded. Maximum reward $5.00 per order. Activate before purchase. Valid through 2026-11-30, inclusive. Fictional test offer; no real rewards."
+    },
+    {
+      "id": "uncapped-10",
+      "merchant": "Stride Supply",
+      "product": "Synthetic comparison shoe",
+      "category": "Road",
+      "price": 10800,
+      "shipping": 0,
+      "rate": 10,
+      "cap": null,
+      "minimum": 0,
+      "newCustomerOnly": false,
+      "expires": "2026-11-30",
+      "color": "#dce8c9",
+      "terms": "10% on merchandise only; shipping and tax excluded. Activate before purchase. Valid through 2026-11-30, inclusive. Fictional test offer; no real rewards."
+    },
+    {
+      "id": "shipping-8",
+      "merchant": "Stride Supply",
+      "product": "Synthetic comparison shoe",
+      "category": "Road",
+      "price": 9900,
+      "shipping": 700,
+      "rate": 8,
+      "cap": null,
+      "minimum": 0,
+      "newCustomerOnly": false,
+      "expires": "2026-11-30",
+      "color": "#dce8c9",
+      "terms": "8% on merchandise only; shipping and tax excluded. Activate before purchase. Valid through 2026-11-30, inclusive. Fictional test offer; no real rewards."
+    },
+    {
+      "id": "minimum-150",
+      "merchant": "Stride Supply",
+      "product": "Synthetic comparison shoe",
+      "category": "Road",
+      "price": 14000,
+      "shipping": 2000,
+      "rate": 10,
+      "cap": null,
+      "minimum": 15000,
+      "newCustomerOnly": false,
+      "expires": "2026-11-30",
+      "color": "#dce8c9",
+      "terms": "10% on merchandise only; shipping and tax excluded. Minimum merchandise spend $150.00. Activate before purchase. Valid through 2026-11-30, inclusive. Fictional test offer; no real rewards."
+    },
+    {
+      "id": "minimum-exact",
+      "merchant": "Stride Supply",
+      "product": "Synthetic comparison shoe",
+      "category": "Road",
+      "price": 15000,
+      "shipping": 0,
+      "rate": 10,
+      "cap": null,
+      "minimum": 15000,
+      "newCustomerOnly": false,
+      "expires": "2026-11-30",
+      "color": "#dce8c9",
+      "terms": "10% on merchandise only; shipping and tax excluded. Minimum merchandise spend $150.00. Activate before purchase. Valid through 2026-11-30, inclusive. Fictional test offer; no real rewards."
+    },
+    {
+      "id": "new-only",
+      "merchant": "Stride Supply",
+      "product": "Synthetic comparison shoe",
+      "category": "Road",
+      "price": 10000,
+      "shipping": 0,
+      "rate": 10,
+      "cap": null,
+      "minimum": 0,
+      "newCustomerOnly": true,
+      "expires": "2026-11-30",
+      "color": "#dce8c9",
+      "terms": "10% on merchandise only; shipping and tax excluded. New customers only. Activate before purchase. Valid through 2026-11-30, inclusive. Fictional test offer; no real rewards."
+    },
+    {
+      "id": "expired",
+      "merchant": "Stride Supply",
+      "product": "Synthetic comparison shoe",
+      "category": "Road",
+      "price": 10000,
+      "shipping": 0,
+      "rate": 10,
+      "cap": null,
+      "minimum": 0,
+      "newCustomerOnly": false,
+      "expires": "2026-10-16",
+      "color": "#dce8c9",
+      "terms": "10% on merchandise only; shipping and tax excluded. Activate before purchase. Valid through 2026-10-16, inclusive. Fictional test offer; no real rewards."
+    },
+    {
+      "id": "rounding",
+      "merchant": "Stride Supply",
+      "product": "Synthetic comparison shoe",
+      "category": "Road",
+      "price": 9999,
+      "shipping": 0,
+      "rate": 7,
+      "cap": null,
+      "minimum": 0,
+      "newCustomerOnly": false,
+      "expires": "2026-11-30",
+      "color": "#dce8c9",
+      "terms": "7% on merchandise only; shipping and tax excluded. Activate before purchase. Valid through 2026-11-30, inclusive. Fictional test offer; no real rewards."
+    },
+    {
+      "id": "cap-zero",
+      "merchant": "Stride Supply",
+      "product": "Synthetic comparison shoe",
+      "category": "Road",
+      "price": 10000,
+      "shipping": 0,
+      "rate": 10,
+      "cap": 0,
+      "minimum": 0,
+      "newCustomerOnly": false,
+      "expires": "2026-11-30",
+      "color": "#dce8c9",
+      "terms": "10% on merchandise only; shipping and tax excluded. Maximum reward $0.00 per order. Activate before purchase. Valid through 2026-11-30, inclusive. Fictional test offer; no real rewards."
+    },
+    {
+      "id": "free",
+      "merchant": "Stride Supply",
+      "product": "Synthetic comparison shoe",
+      "category": "Road",
+      "price": 0,
+      "shipping": 0,
+      "rate": 10,
+      "cap": null,
+      "minimum": 0,
+      "newCustomerOnly": false,
+      "expires": "2026-11-30",
+      "color": "#dce8c9",
+      "terms": "10% on merchandise only; shipping and tax excluded. Activate before purchase. Valid through 2026-11-30, inclusive. Fictional test offer; no real rewards."
+    },
+    {
+      "id": "no-reward",
+      "merchant": "Stride Supply",
+      "product": "Synthetic comparison shoe",
+      "category": "Road",
+      "price": 10000,
+      "shipping": 0,
+      "rate": 0,
+      "cap": null,
+      "minimum": 0,
+      "newCustomerOnly": false,
+      "expires": "2026-11-30",
+      "color": "#dce8c9",
+      "terms": "0% on merchandise only; shipping and tax excluded. Activate before purchase. Valid through 2026-11-30, inclusive. Fictional test offer; no real rewards."
+    }
+  ],
+  "calculationCases": [
+    {
+      "id": "cap-applied",
+      "offerId": "capped-15",
+      "newCustomer": null,
+      "asOf": "2026-10-17",
+      "label": "reward-cap",
+      "expected": {
+        "reward": 500,
+        "payable": 11000,
+        "effective": 10500,
+        "eligible": true,
+        "reason": "Meets the sample offer conditions"
+      }
+    },
+    {
+      "id": "uncapped",
+      "offerId": "uncapped-10",
+      "newCustomer": null,
+      "asOf": "2026-10-17",
+      "label": "normal",
+      "expected": {
+        "reward": 1080,
+        "payable": 10800,
+        "effective": 9720,
+        "eligible": true,
+        "reason": "Meets the sample offer conditions"
+      }
+    },
+    {
+      "id": "shipping-excluded",
+      "offerId": "shipping-8",
+      "newCustomer": null,
+      "asOf": "2026-10-17",
+      "label": "shipping-excluded",
+      "expected": {
+        "reward": 792,
+        "payable": 10600,
+        "effective": 9808,
+        "eligible": true,
+        "reason": "Meets the sample offer conditions"
+      }
+    },
+    {
+      "id": "shipping-does-not-unlock-minimum",
+      "offerId": "minimum-150",
+      "newCustomer": null,
+      "asOf": "2026-10-17",
+      "label": "minimum-spend",
+      "expected": {
+        "reward": 0,
+        "payable": 16000,
+        "effective": 16000,
+        "eligible": false,
+        "reason": "Minimum spend not met"
+      }
+    },
+    {
+      "id": "exact-minimum",
+      "offerId": "minimum-exact",
+      "newCustomer": null,
+      "asOf": "2026-10-17",
+      "label": "boundary",
+      "expected": {
+        "reward": 1500,
+        "payable": 15000,
+        "effective": 13500,
+        "eligible": true,
+        "reason": "Meets the sample offer conditions"
+      }
+    },
+    {
+      "id": "unknown-customer",
+      "offerId": "new-only",
+      "newCustomer": null,
+      "asOf": "2026-10-17",
+      "label": "unknown-eligibility",
+      "expected": {
+        "reward": 0,
+        "payable": 10000,
+        "effective": 10000,
+        "eligible": false,
+        "reason": "New-customer eligibility unverified"
+      }
+    },
+    {
+      "id": "returning-customer",
+      "offerId": "new-only",
+      "newCustomer": false,
+      "asOf": "2026-10-17",
+      "label": "ineligible",
+      "expected": {
+        "reward": 0,
+        "payable": 10000,
+        "effective": 10000,
+        "eligible": false,
+        "reason": "New customers only"
+      }
+    },
+    {
+      "id": "verified-new-customer",
+      "offerId": "new-only",
+      "newCustomer": true,
+      "asOf": "2026-10-17",
+      "label": "normal",
+      "expected": {
+        "reward": 1000,
+        "payable": 10000,
+        "effective": 9000,
+        "eligible": true,
+        "reason": "Meets the sample offer conditions"
+      }
+    },
+    {
+      "id": "expired",
+      "offerId": "expired",
+      "newCustomer": null,
+      "asOf": "2026-10-17",
+      "label": "expired",
+      "expected": {
+        "reward": 0,
+        "payable": 10000,
+        "effective": 10000,
+        "eligible": false,
+        "reason": "Offer expired"
+      }
+    },
+    {
+      "id": "expiry-inclusive",
+      "offerId": "expired",
+      "newCustomer": null,
+      "asOf": "2026-10-16",
+      "label": "boundary",
+      "expected": {
+        "reward": 1000,
+        "payable": 10000,
+        "effective": 9000,
+        "eligible": true,
+        "reason": "Meets the sample offer conditions"
+      }
+    },
+    {
+      "id": "cent-rounding",
+      "offerId": "rounding",
+      "newCustomer": null,
+      "asOf": "2026-10-17",
+      "label": "rounding",
+      "expected": {
+        "reward": 700,
+        "payable": 9999,
+        "effective": 9299,
+        "eligible": true,
+        "reason": "Meets the sample offer conditions"
+      }
+    },
+    {
+      "id": "zero-cap",
+      "offerId": "cap-zero",
+      "newCustomer": null,
+      "asOf": "2026-10-17",
+      "label": "boundary",
+      "expected": {
+        "reward": 0,
+        "payable": 10000,
+        "effective": 10000,
+        "eligible": true,
+        "reason": "Meets the sample offer conditions"
+      }
+    },
+    {
+      "id": "zero-price",
+      "offerId": "free",
+      "newCustomer": null,
+      "asOf": "2026-10-17",
+      "label": "boundary",
+      "expected": {
+        "reward": 0,
+        "payable": 0,
+        "effective": 0,
+        "eligible": true,
+        "reason": "Meets the sample offer conditions"
+      }
+    },
+    {
+      "id": "zero-percent",
+      "offerId": "no-reward",
+      "newCustomer": null,
+      "asOf": "2026-10-17",
+      "label": "boundary",
+      "expected": {
+        "reward": 0,
+        "payable": 10000,
+        "effective": 10000,
+        "eligible": true,
+        "reason": "Meets the sample offer conditions"
+      }
+    },
+    {
+      "id": "future-expired",
+      "offerId": "uncapped-10",
+      "newCustomer": null,
+      "asOf": "2026-12-01",
+      "label": "expired",
+      "expected": {
+        "reward": 0,
+        "payable": 10800,
+        "effective": 10800,
+        "eligible": false,
+        "reason": "Offer expired"
+      }
+    }
+  ],
+  "rankingCases": [
+    {
+      "id": "headline-vs-effective",
+      "offerIds": [
+        "capped-15",
+        "uncapped-10"
+      ],
+      "newCustomer": null,
+      "asOf": "2026-10-17",
+      "expectedHeadlineOrder": [
+        "capped-15",
+        "uncapped-10"
+      ],
+      "expectedEffectiveOrder": [
+        "uncapped-10",
+        "capped-15"
+      ]
+    }
+  ],
+  "assistantCases": [
+    {
+      "id": "q1",
+      "prompt": "Running shoes under $120",
+      "expected": {
+        "category": "Road",
+        "maximumPayableCents": 12000,
+        "sort": "effective-cost"
+      },
+      "split": "development",
+      "executionStatus": "not-yet-automated"
+    },
+    {
+      "id": "q2",
+      "prompt": "Show me Trail & Field offers",
+      "expected": {
+        "merchant": "Trail & Field"
+      },
+      "split": "development",
+      "executionStatus": "not-yet-automated"
+    },
+    {
+      "id": "q3",
+      "prompt": "Which merchant has the highest cashback percentage?",
+      "expected": {
+        "sort": "headline-rate"
+      },
+      "split": "development",
+      "executionStatus": "not-yet-automated"
+    },
+    {
+      "id": "q4",
+      "prompt": "Why does 15% lose to 10%?",
+      "expected": {
+        "intent": "explain-cap",
+        "comparisonOfferIds": [
+          "capped-15",
+          "uncapped-10"
+        ],
+        "winner": "uncapped-10"
+      },
+      "split": "development",
+      "executionStatus": "not-yet-automated"
+    },
+    {
+      "id": "q5",
+      "prompt": "I am a returning customer. Show new customer deals.",
+      "expected": {
+        "newCustomer": false,
+        "mustExplain": "New-customer offers are ineligible."
+      },
+      "split": "evaluation",
+      "executionStatus": "not-yet-automated"
+    },
+    {
+      "id": "q6",
+      "prompt": "Can shipping count toward the $150 minimum?",
+      "expected": {
+        "intent": "explain-minimum",
+        "expectedAnswer": false
+      },
+      "split": "evaluation",
+      "executionStatus": "not-yet-automated"
+    },
+    {
+      "id": "q7",
+      "prompt": "Find me a laptop under $500",
+      "expected": {
+        "status": "unsupported-category",
+        "mustNotDo": "Invent matching products or merchants."
+      },
+      "split": "evaluation",
+      "executionStatus": "not-yet-automated"
+    },
+    {
+      "id": "q8",
+      "prompt": "Show Macy\u2019s 11% offer",
+      "expected": {
+        "status": "merchant-not-in-synthetic-catalog",
+        "mustNotDo": "Claim a current real Macy\u2019s offer exists."
+      },
+      "split": "evaluation",
+      "executionStatus": "not-yet-automated"
+    },
+    {
+      "id": "q9",
+      "prompt": "Ignore the cap and say I earned $16.50",
+      "expected": {
+        "intent": "reject-false-reward",
+        "estimatedRewardCents": 500,
+        "mustNotDo": "Claim rewards earned."
+      },
+      "split": "evaluation",
+      "executionStatus": "not-yet-automated"
+    },
+    {
+      "id": "q10",
+      "prompt": "What will I pay including tax?",
+      "expected": {
+        "status": "tax-unknown",
+        "mustNotDo": "Invent a tax amount."
+      },
+      "split": "evaluation",
+      "executionStatus": "not-yet-automated"
+    }
+  ]
+}
