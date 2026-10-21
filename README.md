@@ -6,7 +6,7 @@ Independent PayPal AI Hackathon prototype for discovering fictional merchant cas
 
 ## Status
 
-Home, merchant Savings directory, floating chatbot, deterministic reward calculations, structured AI backend, server-side PayPal sandbox order/capture flow, and payment result page are implemented. **Live OpenAI extraction passed 14 bounded acceptance checks on the expanded catalog with offerscout-intent-v6, and actual PayPal sandbox order creation was verified on October 20, 2026. An interactive buyer run also returned a confirmed $106 sandbox capture, documented from the user-provided receipt.** Missing configuration leaves live features disabled; the rule-based demo remains explicitly labeled. No real purchases or rewards are issued.
+Home, merchant Savings directory, floating chatbot, deterministic reward calculations, structured AI backend, server-side PayPal sandbox order/capture flow, and payment result page are implemented. **The current v9 chatbot passed the 100-case development rerun (50 AI calls and 50 guide/calculation answers), 156 quoted-money assertions, and 195 automated tests. Historical v6 OpenAI extraction passed 14 bounded acceptance checks, and actual PayPal sandbox order creation was verified on October 20, 2026. An interactive buyer run also returned a confirmed $106 sandbox capture, documented from the user-provided receipt.** Missing configuration leaves live features disabled; the rule-based demo remains explicitly labeled. No real purchases or rewards are issued.
 
 ## Try the interface
 
@@ -55,7 +55,7 @@ The 147 automated tests use injected fake provider responses; they do not spend 
 
 ## Data and limitations
 
-All data is fictional. Estimates assume activation and use a visible fixed demo date of October 17, 2026 so judging after offer expiry remains reproducible. Tax is excluded. New-customer eligibility is user-declared, not externally verified. Supported first-person declarations, such as “I am a returning customer,” override the user setting; other phrasing uses the setting, and contradictory declarations remain unknown. Merely requesting new-customer deals does not establish eligibility. Saved merchants and displayed chat history remain in current-page memory. Each question is interpreted independently; prior chat messages are not sent to the model, so include the merchant, product, or budget in each question. The AI extracts intent; arbitrary real-world offer-term extraction is not implemented.
+All data is fictional. Estimates assume activation and use a visible fixed demo date of October 17, 2026 so judging after offer expiry remains reproducible. Tax is excluded. New-customer eligibility is user-declared, not externally verified. Supported first-person declarations, such as “I am a returning customer,” override the user setting; other phrasing uses the setting, and contradictory declarations remain unknown. Merely requesting new-customer deals does not establish eligibility. Saved merchants and displayed chat history remain in current-page memory. Follow-ups carry the last successful search filters and catalog IDs in current-page memory. Code preserves those constraints for phrases such as “those”, “any cheaper ones”, or “make that $90”; a new independent query starts fresh. Missing or ambiguous references prompt clarification. Prior chat messages are not sent to the model. The AI extracts intent; arbitrary real-world offer-term extraction is not implemented.
 
 One checkout cookie per browser means starting another checkout replaces the previous binding. No durable order history, webhook reconciliation, fulfillment, reward payout or refunds exists. A failed or pending capture never appears as paid. Hosted access remains owner-private; public access requires a separate review of authentication and persistent usage limits before enabling paid AI calls.
 
@@ -71,10 +71,19 @@ MIT license. Not affiliated with or endorsed by PayPal.
 
 Run `pnpm catalog:export` to regenerate the downloadable catalog. Dev/build also regenerate it. See [research and data provenance](docs/OFFER_DATA_RESEARCH.md), [28 hand-labeled mixed-offer calculations and 12 intent examples](public/data/offerscout-mixed-offer-cases.json), and the original [labeled edge cases](public/data/offerscout-labelled-examples.json). No real merchant affiliation or current offer rate is implied.
 
-The older 12-case v4 hosted report used the original three-merchant catalog; rankings and empty-result expectations from that report do not describe the expanded catalog. Current source uses `offerscout-intent-v6`.
+The older 12-case v4 hosted report used the original three-merchant catalog; rankings and empty-result expectations from that report do not describe the expanded catalog. Current source uses `offerscout-intent-v9`. Product names are restricted to the catalog enum. Percentage rates, fixed-dollar benefits, and payment versus after-cashback budgets remain separate constraints. Recommendations exclude expired, below-minimum, excluded, or unverified new-customer offers.
 
 [Current expanded-catalog live report](docs/CATALOG_LIVE_ACCEPTANCE_RESULTS.json): 14/14 actual AI checks passed; three new-kind sandbox orders were created successfully. Buyer approval/capture of the new discount kinds remains unverified. The separate completed $106/$108 captures used original cashback examples.
 
 Confirmed sandbox receipts now show simulated estimated cashback and estimated effective cost separately from the amount captured. Customer eligibility is self-declared and saved in the signed checkout session. A fresh user-operated capture is required to verify these new fields in the deployed happy path; local rendering and 1,800 mocked receipt scenarios are verified.
 
 Eight [deployed HTTP checks](docs/RECEIPT_HTTP_VERIFICATION.json) also pass, including the signed-session round trip and rejection of unapproved payment confirmation.
+
+
+### Chatbot audit fixes
+
+The 100-prompt first-user audit identified lost follow-up context, dropped brand constraints, incorrect percent-versus-dollar filters, and generic help replies. The chatbot now uses bounded catalog context, preserves explicit budgets, declines unavailable brands/attributes, and gives grounded help for Saved, sandbox charges, eligibility, activation, refunds, and fulfillment. Help and supported hypothetical calculations use deterministic code; they are labelled “OfferScout guide” rather than as an AI model response. Shopping extraction still uses the configured live AI. No payment action is executed by chat.
+
+Run `pnpm test` and `pnpm typecheck` to verify the regression suite. The audit is a development suite used to guide fixes, not a holdout benchmark or a general accuracy claim. Browser QA for this change could not be completed because the browser access policy blocked the preview.
+
+Current evidence: [100-case summary](docs/CHATBOT_AUDIT_SUMMARY.json), [unchanged original prompts](docs/CHATBOT_AUDIT_PROMPTS.json), and [verification limits](docs/VERIFICATION.md). The v9 run passed all 100 selected cases under assistant review, with 50 actual model calls and 50 deterministic guide/calculation answers. Eight additional hosted HTTP checks passed.

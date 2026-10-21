@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { ArrowRight, Bookmark, Home, Info, MessageCircle, Search, Send, ShieldCheck, Sparkles, Tag, X } from 'lucide-react';
 import { z } from 'zod';
 import { intentSchema, type ShoppingIntent } from '../lib/intent';
+import { isMerchantView, type ChatContext } from '../lib/chat';
 import { matchingOffers } from '../lib/recommend';
 import { offers, evaluate, money, offerHeadline, offerSummary, type OfferFilter, type Merchant, type Offer } from '../lib/offers';
 import { OfferDetails } from '../components/offer-details';
@@ -25,8 +26,12 @@ export default function OfferScout() {
   const [category, setCategory] = useState<Category>('All');
   const [offerType, setOfferType] = useState<OfferFilter | null>(null);
   const [benefitAmount, setBenefitAmount] = useState<number | null>(null);
-  const [visibleCount, setVisibleCount] = useState(24);
+  const [pagination, setPagination] = useState({ key: '', count: 24 });
   const [sort, setSort] = useState<ShoppingIntent['sort']>('effective-cost');
+  const [budgetBasis, setBudgetBasis] = useState<'payable' | 'effective'>('payable');
+  const [ratePercent, setRatePercent] = useState<number | null>(null);
+  const [newCustomerOffersOnly, setNewCustomerOffersOnly] = useState(false);
+  const context = useRef<ChatContext | undefined>(undefined);
   const [budget, setBudget] = useState<number | null>(null);
   const [newCustomer, setNewCustomer] = useState<boolean | null>(null);
   const [saved, setSaved] = useState<Merchant[]>([]);
@@ -47,7 +52,7 @@ export default function OfferScout() {
   const chatButton = useRef<HTMLButtonElement>(null);
   const chatBody = useRef<HTMLDivElement>(null);
 
-  const results = useMemo(() => matchingOffers({ intent: 'search', merchant, category: category === 'All' ? null : category, searchText: query || null, maximumPayableCents: budget, sort, newCustomer, offerType, benefitAmountCents: benefitAmount }, newCustomer), [query, merchant, category, budget, sort, newCustomer, offerType, benefitAmount]);
+  const results = useMemo(() => matchingOffers({ intent: 'search', merchant, category: category === 'All' ? null : category, searchText: query || null, maximumPayableCents: budget, sort, newCustomer, offerType, benefitAmountCents: benefitAmount, budgetBasis, ratePercent, newCustomerOffersOnly }, newCustomer), [query, merchant, category, budget, sort, newCustomer, offerType, benefitAmount, budgetBasis, ratePercent, newCustomerOffersOnly]);
   const merchants = useMemo(() => [...new Set(results.map(offer => offer.merchant))].filter(name => screen !== 'saved' || saved.includes(name)), [results, screen, saved]);
 
   useEffect(() => {
@@ -58,13 +63,14 @@ export default function OfferScout() {
     }).catch(() => {});
     return () => controller.abort();
   }, []);
-  useEffect(() => { setVisibleCount(24); }, [query, merchant, category, budget, sort, newCustomer, offerType, benefitAmount, screen]);
+  const paginationKey = JSON.stringify([query, merchant, category, budget, sort, newCustomer, offerType, benefitAmount, screen, budgetBasis, ratePercent, newCustomerOffersOnly]);
+  const visibleCount = pagination.key === paginationKey ? pagination.count : 24;
   useEffect(() => { if (chatOpen) chatInput.current?.focus(); }, [chatOpen]);
   useEffect(() => { const element = chatBody.current; if (element) element.scrollTop = element.scrollHeight; }, [messages, busy]);
 
   function closeChat() { setChatOpen(false); chatButton.current?.focus(); }
-  function resetFilters() { setQuery(''); setMerchant(null); setCategory('All'); setSort('effective-cost'); setOfferType(null); setBenefitAmount(null); setBudget(null); }
-  function openOffer(offer: Offer) { setDetailMerchant(offer.merchant); setSelected(offer); setPaymentError(''); }
+  function resetFilters() { setQuery(''); setMerchant(null); setCategory('All'); setSort('effective-cost'); setOfferType(null); setBenefitAmount(null); setBudget(null); setBudgetBasis('payable'); setRatePercent(null); setNewCustomerOffersOnly(false); context.current = undefined; }
+  function openOffer(offer: Offer) { context.current = { intent: intentSchema.parse({ intent: 'search', merchant: offer.merchant, category: offer.category, searchText: offer.product, maximumPayableCents: null, sort: 'effective-cost', newCustomer, view: 'purchases' }), offerIds: [offer.id] }; setDetailMerchant(offer.merchant); setSelected(offer); setPaymentError(''); }
   function openMerchant(name: Merchant) { setDetailMerchant(name); setSelected(null); setPaymentError(''); }
   function appendMessage(message: Omit<ChatMessage, 'id'>) {
     const id = String(++messageCounter.current);
@@ -78,12 +84,15 @@ export default function OfferScout() {
     setBusy(true); setPrompt('');
     appendMessage({ role: 'user', text });
     try {
-      const response = await fetch('/api/assistant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: text, newCustomer, mode }) });
+      const response = await fetch('/api/assistant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: text, newCustomer, mode, context: context.current }) });
       const data: unknown = await response.json();
       if (!response.ok) { const error = z.object({ error: z.string() }).safeParse(data); throw new Error(error.success ? error.data.error : 'Could not compare offers. Please try again.'); }
       const result = answerSchema.parse(data);
-      appendMessage({ role: 'assistant', text: result.answer, source: result.mode === 'live' ? `AI: ${result.model} · ${result.promptVersion}` : 'Rule-based demo · no AI call', offerIds: result.offerIds, merchantOnly: result.intent.intent === 'search' && result.intent.maximumPayableCents === null && !result.intent.category && !result.intent.searchText });
+      appendMessage({ role: 'assistant', text: result.answer, source: result.model ? `AI: ${result.model} · ${result.promptVersion}` : (result.mode === 'live' ? 'OfferScout guide · verified app behavior' : 'Rule-based demo · no AI call'), offerIds: result.offerIds, merchantOnly: result.intent.intent === 'search' && isMerchantView(result.intent) });
+      setNewCustomer(result.newCustomer);
       if (result.intent.intent === 'search') {
+        context.current = { intent: result.intent, offerIds: result.offerIds };
+        setBudgetBasis(result.intent.budgetBasis ?? 'payable'); setRatePercent(result.intent.ratePercent ?? null); setNewCustomerOffersOnly(result.intent.newCustomerOffersOnly ?? false);
         setCategory(result.intent.category ?? 'All'); setMerchant(result.intent.merchant); setQuery(result.intent.searchText ?? '');
         setBudget(result.intent.maximumPayableCents); setNewCustomer(result.newCustomer); setSort(result.intent.sort); setOfferType(result.intent.offerType); setBenefitAmount(result.intent.benefitAmountCents); setScreen('savings');
       }
@@ -121,8 +130,8 @@ export default function OfferScout() {
         <section className="savings-intro"><div><div className="eyebrow">OFFERS, WITH THE CONDITIONS IN VIEW</div><h1>{screen === 'saved' ? 'Saved merchants' : 'Savings'}</h1><p>{screen === 'saved' ? 'Your saved offers for this visit.' : 'Find a merchant, compare offers, or ask OfferScout where to start.'}</p></div><button className="secondary" onClick={() => setChatOpen(true)}><Sparkles size={16} /> Help me find an offer</button></section>
         <div className="notice"><Info size={17} /><span>This demo contains {merchantNames.length} fictional footwear merchants and {offers.length} sample purchase offers. These are sample offers, not a live PayPal offer feed.</span></div>
         <section className="directory" aria-label="Merchant offers"><div className="search-row"><label className="search"><Search size={19} /><input aria-label="Search offers" data-testid="offer-search" placeholder="Search merchants or offers" value={query} onChange={event => { setQuery(event.target.value); setMerchant(null); }} /></label><label className="sort">Sort by<select aria-label="Sort offers" value={sort} onChange={event => setSort(event.target.value as ShoppingIntent['sort'])}><option value="headline-rate">Highest cashback % (cashback only)</option><option value="effective-cost">Best sample purchase value</option><option value="payable">Lowest sample purchase price</option></select></label></div>
-          <div className="offer-type-filter"><label htmlFor="offer-type">Offer type</label><select id="offer-type" data-testid="offer-type-filter" value={offerType ?? "all"} onChange={event => { setBenefitAmount(null); setOfferType(event.target.value === "all" ? null : event.target.value as OfferFilter); if (sort === "headline-rate") setSort("effective-cost"); }}><option value="all">All offer types</option><option value="cashback">All cashback offers</option><option value="discount">All instant discounts</option><option value="cashback-percent">Percentage cashback</option><option value="cashback-fixed">Dollar cashback · get $5 back</option><option value="discount-fixed">Dollar discount · save $5 now</option><option value="discount-percent">Percentage discount</option></select></div><div className="filters">{categories.map(value => <button className={`chip ${category === value ? 'selected' : ''}`} aria-pressed={category === value} key={value} onClick={() => setCategory(value)}>{categoryLabels[value]}</button>)}{merchant && <button className="chip selected" data-testid="merchant-filter" onClick={() => setMerchant(null)} aria-label={`Clear merchant filter ${merchant}`}>{merchant} <X size={12} /></button>}{benefitAmount !== null && <button className="chip selected" onClick={() => setBenefitAmount(null)}>{money(benefitAmount)} benefit <X size={12} /></button>}{budget !== null && <button className="chip selected" onClick={() => setBudget(null)}>Pay today ≤ {money(budget)} <X size={12} /></button>}<button className="text-button reset" onClick={resetFilters}>Reset filters</button></div>
-          <div className="result-heading"><h2>{merchants.length} {merchants.length === 1 ? 'merchant' : 'merchants'} {screen === 'saved' ? 'saved' : 'with matching offers'}</h2><span>Rates & expiry vary · Includes ineligible test cases</span></div>
+          <div className="offer-type-filter"><label htmlFor="offer-type">Offer type</label><select id="offer-type" data-testid="offer-type-filter" value={offerType ?? "all"} onChange={event => { setBenefitAmount(null); setRatePercent(null); setOfferType(event.target.value === "all" ? null : event.target.value as OfferFilter); if (sort === "headline-rate") setSort("effective-cost"); }}><option value="all">All offer types</option><option value="cashback">All cashback offers</option><option value="discount">All instant discounts</option><option value="cashback-percent">Percentage cashback</option><option value="cashback-fixed">Dollar cashback · get $5 back</option><option value="discount-fixed">Dollar discount · save $5 now</option><option value="discount-percent">Percentage discount</option></select></div><div className="filters">{categories.map(value => <button className={`chip ${category === value ? 'selected' : ''}`} aria-pressed={category === value} key={value} onClick={() => setCategory(value)}>{categoryLabels[value]}</button>)}{merchant && <button className="chip selected" data-testid="merchant-filter" onClick={() => setMerchant(null)} aria-label={`Clear merchant filter ${merchant}`}>{merchant} <X size={12} /></button>}{benefitAmount !== null && <button className="chip selected" onClick={() => setBenefitAmount(null)}>{money(benefitAmount)} benefit <X size={12} /></button>}{budget !== null && <button className="chip selected" onClick={() => setBudget(null)}>{budgetBasis === 'effective' ? 'After estimated cashback' : 'Pay today'} ≤ {money(budget)} <X size={12} /></button>}{ratePercent !== null && <button className="chip selected" onClick={() => setRatePercent(null)}>{ratePercent}% rate <X size={12} /></button>}{newCustomerOffersOnly && <button className="chip selected" onClick={() => setNewCustomerOffersOnly(false)}>New customers only <X size={12} /></button>}<button className="text-button reset" onClick={resetFilters}>Reset filters</button></div>
+          <div className="result-heading"><h2>{merchants.length} {merchants.length === 1 ? 'merchant' : 'merchants'} {screen === 'saved' ? 'saved' : 'with matching offers'}</h2><span>Rates & expiry vary · Showing eligible offers · Sample date Oct 17, 2026</span></div>
           <div className="merchant-grid">{merchants.slice(0, visibleCount).map(name => {
             const matching = results.filter(offer => offer.merchant === name);
             const first = matching[0];
@@ -131,7 +140,7 @@ export default function OfferScout() {
             const isSaved = saved.includes(name);
             return <article className="merchant-card" key={name} data-testid={`merchant-${merchantNames.indexOf(name)}`}><div className="merchant-top"><div className="merchant-mark" style={{ background: first.color }} aria-hidden="true">{merchantInitials(name)}</div><button className={`icon-button ${isSaved ? 'is-saved' : ''}`} aria-label={`${isSaved ? 'Unsave' : 'Save'} ${name}`} onClick={() => setSaved(previous => isSaved ? previous.filter(value => value !== name) : [...previous, name])}><Bookmark size={19} fill={isSaved ? 'currentColor' : 'none'} /></button></div><h3>{name}</h3><p className="merchant-category">Footwear · Fictional merchant</p><div className="cashback"><strong>{headline.value}</strong><span>{headline.label}</span></div><div className="condition"><Info size={14} /><span>{first.cap !== null ? `Benefit capped at ${money(first.cap)} per order` : first.minimum ? `Minimum merchandise spend ${money(first.minimum)}` : 'See purchase-specific conditions'}</span></div><p className="merchant-terms">{offerSummary(first)}</p>{!estimate.eligible && <p className="warning" data-testid={`eligibility-${first.id}`}>{estimate.reason}</p>}{sort !== 'headline-rate' && <div className="sample-value"><span>First matching sample purchase</span><strong>{money(estimate.effective)} <small>after estimated rewards</small></strong><span>{first.product} · Pay {money(estimate.payable)} before tax</span></div>}<button className="view" data-testid={`view-merchant-${merchantNames.indexOf(name)}`} onClick={() => openMerchant(name)}>View offer & terms <ArrowRight size={16} /></button></article>;
           })}</div>
-          {visibleCount < merchants.length && <div className="load-more"><p>Showing {Math.min(visibleCount, merchants.length)} of {merchants.length} matching merchants</p><button className="secondary" data-testid="load-more-merchants" onClick={() => setVisibleCount(value => value + 24)}>Show more merchants <ArrowRight size={16} /></button></div>}
+          {visibleCount < merchants.length && <div className="load-more"><p>Showing {Math.min(visibleCount, merchants.length)} of {merchants.length} matching merchants</p><button className="secondary" data-testid="load-more-merchants" onClick={() => setPagination({ key: paginationKey, count: visibleCount + 24 })}>Show more merchants <ArrowRight size={16} /></button></div>}
           {merchants.length === 0 && <div className="empty"><Search size={28} /><h3>{screen === 'saved' && saved.length === 0 ? 'No saved merchants yet' : 'No matching offers'}</h3><p>{screen === 'saved' && saved.length === 0 ? 'Use the bookmark on a merchant to save it for this visit.' : 'Try another merchant, category, or budget.'}</p><button className="secondary" onClick={() => { resetFilters(); setScreen('savings'); }}>Browse all offers</button></div>}
           <div className="directory-help"><MessageCircle size={20} /><div><strong>Not sure which offer fits?</strong><p>Ask “Running shoes under $120” or “Show me Trail & Field offers.”</p></div><button className="text-button" onClick={() => setChatOpen(true)}>Ask OfferScout <ArrowRight size={15} /></button></div>
         </section>

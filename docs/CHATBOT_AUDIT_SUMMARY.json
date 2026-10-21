@@ -1,0 +1,684 @@
+{
+  "suite": "offerscout-first-time-user-v1",
+  "completedAt": "2026-10-21T05:05:40.051453+00:00",
+  "promptSetSha256": "e6eab5153f4fe92901f8d35964c55086a24caabab404a4d736853158fe4c4752",
+  "http200": 100,
+  "automatedChecksPassed": 100,
+  "promptVersions": [
+    "offerscout-intent-v9"
+  ],
+  "reviewSummary": {
+    "Pass": 100
+  },
+  "baselineSummary": {
+    "Partial": 29,
+    "Fail": 25,
+    "Pass": 46
+  },
+  "responseSources": {
+    "guide": 50,
+    "ai": 50
+  },
+  "narrativeMoneySummary": {
+    "assertions": 156,
+    "failed": 0
+  },
+  "verification": {
+    "hostedHTTPChecks": {
+      "checks": [
+        {
+          "name": "AI and PayPal remain configured",
+          "passed": true
+        },
+        {
+          "name": "Guide is labelled separately from AI",
+          "passed": true
+        },
+        {
+          "name": "Unavailable brand is not substituted",
+          "passed": true
+        },
+        {
+          "name": "Context cannot grant customer eligibility",
+          "passed": true
+        },
+        {
+          "name": "Unexpected context amount rejected",
+          "passed": true
+        },
+        {
+          "name": "Oversized context preview rejected",
+          "passed": true
+        },
+        {
+          "name": "Cross-origin mutation rejected",
+          "passed": true
+        },
+        {
+          "name": "Relative-clause active-only search works",
+          "passed": true
+        }
+      ],
+      "passed": 8,
+      "total": 8
+    },
+    "automatedTests": 195,
+    "typecheck": "passed",
+    "changedFileLint": "passed",
+    "productionBuild": "passed",
+    "browserQA": "Blocked by browser access policy; not completed for this change.",
+    "fullRepositoryLint": "Existing checkout-page lint errors remain outside the chatbot change.",
+    "checkout": "No orders, captures, refunds, or rewards created in this audit."
+  },
+  "limitations": [
+    "Selected development suite used to guide fixes; not a holdout benchmark or general chatbot accuracy.",
+    "Same 100 prompts and original expectations; new structured checks also enforce percent rate, eligibility and budget basis.",
+    "90 independent requests and 5 two-turn sequences; context now matches the updated UI contract.",
+    "Live mode includes deterministic help/calculation answers; only responseSource=ai used the configured OpenAI model.",
+    "Assistant review of actual responses, not independent human usability research.",
+    "Backend contract tested, not 100 browser click-throughs. Browser preview was blocked.",
+    "Fictional catalog and estimates remain fixed at October 17, 2026; no real merchant offers or payouts."
+  ],
+  "cases": [
+    {
+      "id": "U001",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U002",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U003",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U004",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U005",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U006",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U007",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U008",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U009",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U010",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U011",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U012",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U013",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U014",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U015",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U016",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U017",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U018",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U019",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U020",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U021",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U022",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U023",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U024",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U025",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U026",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U027",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U028",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U029",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U030",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U031",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U032",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U033",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U034",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U035",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U036",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U037",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U038",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U039",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U040",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U041",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U042",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U043",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U044",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U045",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U046",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U047",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U048",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U049",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U050",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U051",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U052",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U053",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U054",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U055",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U056",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U057",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U058",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U059",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U060",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U061",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U062",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U063",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U064",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U065",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U066",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U067",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U068",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U069",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U070",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U071",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U072",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U073",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U074",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U075",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U076",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U077",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U078",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U079",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U080",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U081",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U082",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U083",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U084",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U085",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U086",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U087",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U088",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U089",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U090",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U091",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U092",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U093",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U094",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U095",
+      "baseline": "Partial",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U096",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U097",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U098",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U099",
+      "baseline": "Pass",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    },
+    {
+      "id": "U100",
+      "baseline": "Fail",
+      "after": "Pass",
+      "note": "Meets the frozen primary expectation, returned constraints and semantic evidence; assistant review of the recorded response."
+    }
+  ]
+}

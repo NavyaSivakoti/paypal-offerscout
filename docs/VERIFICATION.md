@@ -4,7 +4,7 @@ Updated October 20, 2026. Hosted AI and sandbox order creation have been checked
 
 ## Automated results
 
-- 147 tests passed; zero failures, skips, or cancellations.
+- 195 tests passed; zero failures, skips, or cancellations.
 - TypeScript strict compilation passed with `tsc --noEmit`.
 - `git diff --check` passed.
 - Dataset checks cover caps, shipping exclusions, minimum spend, new-customer uncertainty, expiration, cent rounding, zero values, and headline versus effective-cost ranking.
@@ -82,3 +82,16 @@ Seller-dashboard reconciliation, real provider failure handling, deployed cancel
 - Strict TypeScript compilation passed. The previous 14-case live AI report remains historical evidence for the unchanged v6 AI pipeline. A fresh user-operated sandbox capture is still needed to verify the newly added receipt fields through the deployed happy path.
 
 - [Deployed HTTP checks](RECEIPT_HTTP_VERIFICATION.json): 8/8 passed, including JSON/origin/input guards, forged-session rejection, actual sandbox order creation with saved customer context, and rejection of an unapproved order without issuing a receipt or estimate. No buyer approval/capture was performed by this check.
+
+
+## Chatbot audit fixes
+
+The original frozen 100-prompt shopper audit produced 46 Pass, 29 Partial and 25 Fail under assistant qualitative review. These findings were used for development; this is not a holdout benchmark. The unchanged prompt set has SHA-256 `e6eab5153f4fe92901f8d35964c55086a24caabab404a4d736853158fe4c4752`.
+
+Added 48 regression tests (195 total), covering follow-up context, new independent searches, percent versus dollar filters, effective-cost budgets, eligibility, unavailable attributes, specific product help, custom arithmetic, and word-boundary mistakes such as “offers” versus “off” and “returning customer” versus a product return. Shopping intent version is now v9; model product output is restricted to catalog names.
+
+TypeScript, changed-file ESLint, production build and source whitespace checks passed. Full-repository lint still reports existing errors in `app/checkout/page.tsx`; this chatbot change does not modify that page. Browser QA was blocked by the cloud browser access policy, so UI click-through verification is not claimed. Existing earlier browser observations above remain historical.
+
+The current 100-case retest summary is recorded in `CHATBOT_AUDIT_SUMMARY.json`. It distinguishes AI search/explanation calls from deterministic guide/calculation answers. Money and eligibility stay in code. No payment or reward was created during the chatbot audit. Fresh buyer approval/capture for the receipt fields remains a separate manual check.
+
+Final v9 hosted rerun: 100/100 HTTP 200, 100/100 structured cases and 100/100 assistant-reviewed primary expectations; 156/156 independently checked quoted-money assertions passed. The run comprised 50 actual AI search/explanation calls and 50 deterministic guide/calculation answers. Eight additional hosted HTTP checks passed, including context validation, cross-origin rejection, preserved eligibility, guide labelling and configuration. The same 100 prompts informed development; this is not a general accuracy estimate.

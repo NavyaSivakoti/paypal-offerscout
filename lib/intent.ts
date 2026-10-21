@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { merchantNames } from './merchants.ts';
-import { OFFER_FILTERS } from './offers.ts';
+import { OFFER_FILTERS, productNames } from './offers.ts';
 export const intentSchema = z.object({
  intent: z.enum(['search','explain-cap','explain-minimum','tax-unknown','unsupported']),
  merchant: z.enum(merchantNames).nullable(),
@@ -10,7 +10,11 @@ export const intentSchema = z.object({
  newCustomer: z.boolean().nullable(),
  offerType: z.enum(OFFER_FILTERS).nullable().default(null),
  benefitAmountCents: z.number().int().min(0).max(1000000).nullable().default(null),
- searchText: z.string().max(100).nullable(),
+ searchText: z.string().max(100).refine(value => productNames.some(name => name === value), 'Unknown sample product').nullable(),
+ view: z.enum(['merchants','purchases']).optional(),
+ budgetBasis: z.enum(['payable','effective']).optional(),
+ ratePercent: z.number().min(0).max(100).nullable().optional(),
+ newCustomerOffersOnly: z.boolean().optional(),
 }).strict();
 export type ShoppingIntent = z.infer<typeof intentSchema>;
 export const intentJsonSchema = {
@@ -21,8 +25,9 @@ export const intentJsonSchema = {
   category:{type:['string','null'],enum:['Road','Trail','Walking',null]},
   maximumPayableCents:{type:['integer','null'],minimum:0,maximum:10000000},
   sort:{type:'string',enum:['effective-cost','headline-rate','payable']},
-  newCustomer:{type:['boolean','null']},offerType:{type:['string','null'],enum:[...OFFER_FILTERS,null]},benefitAmountCents:{type:['integer','null'],minimum:0,maximum:1000000},searchText:{type:['string','null'],maxLength:100},
- },required:['intent','merchant','category','maximumPayableCents','sort','newCustomer','offerType','benefitAmountCents','searchText'],
+  newCustomer:{type:['boolean','null']},offerType:{type:['string','null'],enum:[...OFFER_FILTERS,null]},benefitAmountCents:{type:['integer','null'],minimum:0,maximum:1000000},searchText:{type:['string','null'],enum:[...productNames,null]},
+  view:{type:'string',enum:['merchants','purchases']},budgetBasis:{type:'string',enum:['payable','effective']},ratePercent:{type:['number','null'],minimum:0,maximum:100},newCustomerOffersOnly:{type:'boolean'},
+ },required:['intent','merchant','category','maximumPayableCents','sort','newCustomer','offerType','benefitAmountCents','searchText','budgetBasis','ratePercent','newCustomerOffersOnly','view'],
 };
 export function demoIntent(prompt: string): ShoppingIntent {
  const text=prompt.toLowerCase();
@@ -30,7 +35,7 @@ export function demoIntent(prompt: string): ShoppingIntent {
  // Remove the merchant name before interpreting product categories (Trail & Field is not a trail request).
  const productText=merchant?text.replace(merchant.toLowerCase(),''):text;
  const product=(['Cloudstep Road Runner','Ridgeline Trail Shoe','Everyday Walking Shoe','Tempo Road Runner'] as const).find(name=>productText.includes(name.toLowerCase()))??null;
- const amount=productText.match(/(?:under|below|budget(?: of)?|up to)\s*\$?\s*(\d+(?:\.\d{1,2})?)(?![\d.%])/);
+ const amount=productText.match(/(?:under|below|budget(?: of)?|up to)\s*\$?\s*(\d+(?:\.\d{1,2})?)(?!\d|\.\d|%)/);
  const fixedAmount=productText.match(/(?:save|get)\s*\$(\d+(?:\.\d{1,2})?)/)??productText.match(/\$(\d+(?:\.\d{1,2})?)\s*(?:cash\s*back|back|off)/);
  const kind=/tax/.test(text)?'tax-unknown':/shipping.*(?:minimum|count)|minimum.*shipping/.test(text)?'explain-minimum':/why.*15|15.*10|explain.*cap/.test(text)?'explain-cap':/laptop|phone|jacket|macy|\bnike\b|\badidas\b|ignore.*(?:cap|rules)|earned/.test(text)?'unsupported':merchant||/shoe|running|walking|trail|road|offer|cashback|cash back|deal|discount|coupon|save|off/.test(text)?'search':'unsupported';
  return intentSchema.parse({intent:kind,merchant,category:/trail/.test(productText)?'Trail':/walking/.test(productText)?'Walking':/running|road/.test(productText)?'Road':null,maximumPayableCents:amount?Math.round(Number(amount[1])*100):null,sort:/highest.*(?:cashback|percent|rate)/.test(text)?'headline-rate':/lowest.*price|cheapest.*today/.test(text)?'payable':'effective-cost',benefitAmountCents:fixedAmount?Math.round(Number(fixedAmount[1])*100):null,offerType:/cash\s*back|cashback|\$\d+(?:\.\d{1,2})?\s*back/.test(text)?(/(?:\$\d+(?:\.\d{1,2})?\s*(?:cash\s*)?back|dollar|fixed)/.test(text)?'cashback-fixed':/percent|%|highest/.test(text)?'cashback-percent':'cashback'):/\bsave\b|\boff\b|\bdiscounts?\b|\bcoupons?\b/.test(text)?(/percent|%/.test(text)?'discount-percent':/save\s*\$|\$\d+(?:\.\d{1,2})?\s*off|dollar|fixed/.test(text)?'discount-fixed':'discount'):null,newCustomer:/returning customer/.test(text)?false:/i am a new customer/.test(text)?true:null,searchText:product});

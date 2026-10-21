@@ -39,7 +39,8 @@ export function evaluate(offer: Offer, newCustomer: boolean | null, now = '2026-
   const payable = offer.price - discount + offer.shipping;
   return { subtotal: offer.price, discount, payable, reward, effective: payable - reward, eligible, reason };
 }
-const products = ['Cloudstep Road Runner', 'Ridgeline Trail Shoe', 'Everyday Walking Shoe', 'Tempo Road Runner'] as const;
+export const productNames = ['Cloudstep Road Runner', 'Ridgeline Trail Shoe', 'Everyday Walking Shoe', 'Tempo Road Runner'] as const;
+const products = productNames;
 const colors = ['#dce8c9', '#ead9cc', '#d7e3f0', '#eee2c9', '#e2d9ee', '#d6e8e2'];
 // Preserve original IDs and amounts: existing sandbox checkout bindings remain valid.
 export const demoOffers: Offer[] = merchantNames.slice(0, 3).flatMap((merchant, m) => products.map((product, p) => ({

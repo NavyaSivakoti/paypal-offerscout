@@ -3,14 +3,14 @@ import assert from 'node:assert/strict';
 import { z } from 'zod';
 import { createRequestId } from '../lib/request-id.ts';
 import { resolveCustomerStatus } from '../lib/customer-status.ts';
-import { demoOffers, offers, evaluate, offerKind } from '../lib/offers.ts';
+import { demoOffers, evaluate } from '../lib/offers.ts';
 import { demoIntent,intentSchema } from '../lib/intent.ts';
 import { matchingOffers,explainRecommendation } from '../lib/recommend.ts';
 import { interpret } from '../lib/server/assistant.ts';
 import { readInput } from '../lib/server/http.ts';
 import { orderBody,assertOrder,receipt,approvalUrl,signBinding,verifyBinding,paypalClient } from '../lib/server/paypal.ts';
 test('checkout request IDs work without crypto.randomUUID and meet the API UUID contract',()=>{const id=createRequestId(bytes=>bytes.fill(255));assert.equal(id,'ffffffff-ffff-4fff-bfff-ffffffffffff');assert.equal(z.string().uuid().safeParse(id).success,true);assert.throws(()=>createRequestId(()=>new Uint8Array(2)),/byte count/);});
-test('merchant name does not incorrectly impose Trail category',()=>{const intent=demoIntent('Show me Trail & Field offers');assert.equal(intent.merchant,'Trail & Field');assert.equal(intent.category,null);assert.equal(matchingOffers(intent,null).length,4);});
+test('merchant name does not incorrectly impose Trail category',()=>{const intent=demoIntent('Show me Trail & Field offers');assert.equal(intent.merchant,'Trail & Field');assert.equal(intent.category,null);assert.equal(matchingOffers(intent,null).length,3);});
 test('merchant-only question explains the offer without inventing a purchase amount',()=>{const answer=explainRecommendation(demoIntent('Show me Trail & Field offers'),null);assert.match(answer.answer,/10% estimated cashback/);assert.doesNotMatch(answer.answer,/Pay \$108/);assert.deepEqual(answer.offerIds,['offer-1-0']);});
 test('requesting new-customer deals does not overwrite returning-customer status and explains ineligibility',()=>{const intent=demoIntent('I am a returning customer. Show new customer deals.');assert.equal(intent.newCustomer,false);const result=explainRecommendation(intent,intent.newCustomer);assert.match(result.answer,/New-customer-only offers are ineligible/);assert.match(result.answer,/\$0 estimated rewards/);});
 test('eligibility comes from explicit declarations or the user setting, never the requested deal type',()=>{

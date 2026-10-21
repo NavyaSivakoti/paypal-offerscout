@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { intentSchema, intentJsonSchema, type ShoppingIntent } from '../intent.ts';
 import { AppError } from './http.ts';
 const envelope=z.object({status:z.literal('completed'),output:z.array(z.object({type:z.string(),content:z.array(z.object({type:z.string(),text:z.string().optional()})).optional()}))});
-export const ASSISTANT_PROMPT_VERSION = 'offerscout-intent-v6';
+export const ASSISTANT_PROMPT_VERSION = 'offerscout-intent-v9';
 const instructions = [
  'Extract the USER REQUEST into the supplied shopping-intent JSON schema. Do not answer the question yourself.',
  'Choose intent by what the user actually asks. Default to search for discovering offers, merchants, categories, products, prices, budgets, or highest cashback rates. Do not choose an explanation merely because the catalog contains caps or minimums.',
@@ -17,6 +17,7 @@ const instructions = [
  'sort is effective-cost by default; headline-rate ONLY for highest cashback percentage/rate (this restricts results to percentage cashback); payable for the lowest amount payable today. Set offerType to cashback-percent for percentage cashback, cashback-fixed for a fixed dollar amount back, discount-fixed for save $5 / dollar off, discount-percent for percent off; cashback for general cashback requests, discount for general coupon/discount requests, otherwise null. benefitAmountCents is the explicitly requested fixed-dollar benefit, e.g. save $5 or get $5 back becomes 500; otherwise null. Keep this separate from maximumPayableCents. A price budget such as shoes under $120 is not a fixed dollar offer. A generic offers request has offerType null; a generic coupon request uses discount. Dollar amounts describe a requested benefit only when explicitly tied to saving/off/back, never simply because a payment budget uses dollars. The prototype does not stack offers.',
  'newCustomer describes the user, not the type of deals requested. Return true only for an explicit declaration that the user is a new customer, false only for an explicit returning-customer declaration, otherwise null.',
  'Asking for new-customer offers or returning-customer offers is a supported search. A user being ineligible for some offers does not make their request unsupported; preserve their declared status so the application can explain eligibility.',
+ 'view is merchants for a merchant directory or merchant-only offers question, purchases for cheapest, best value, a specific product, or a purchase budget. budgetBasis is effective only for a spending ceiling AFTER cashback; otherwise payable. ratePercent is an exact explicitly requested percentage (20% off becomes 20), never a dollar benefit. newCustomerOffersOnly is true only when new-customer-only offers are requested. Brand, size, fit, gender, waterproofing, location and stock constraints cannot be satisfied by this catalog: use unsupported rather than dropping them. Best value AFTER cashback always means effective-cost with offerType cashback, not payable. Show every merchant and offers not expired are supported search requests.',
  'Do not calculate savings, charge amounts, make payments, or provide free-text advice.',
  'Examples:',
  'User: Running shoes under $120',
