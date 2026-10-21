@@ -41,7 +41,7 @@ pnpm typecheck
 pnpm build
 ```
 
-The 102 automated tests use injected fake provider responses; they do not spend API credit or contact PayPal. Separate [hosted live acceptance results](docs/LIVE_ACCEPTANCE_RESULTS.json) record 12 checks against `gpt-4o-mini` with `offerscout-intent-v4`. These are a small development acceptance set, not a general accuracy estimate or proof of completed payment.
+The 147 automated tests use injected fake provider responses; they do not spend API credit or contact PayPal. Separate [hosted live acceptance results](docs/LIVE_ACCEPTANCE_RESULTS.json) record 12 checks against `gpt-4o-mini` with `offerscout-intent-v4`. These are a small development acceptance set, not a general accuracy estimate or proof of completed payment.
 
 ## Architecture
 
@@ -74,3 +74,7 @@ Run `pnpm catalog:export` to regenerate the downloadable catalog. Dev/build also
 The older 12-case v4 hosted report used the original three-merchant catalog; rankings and empty-result expectations from that report do not describe the expanded catalog. Current source uses `offerscout-intent-v6`.
 
 [Current expanded-catalog live report](docs/CATALOG_LIVE_ACCEPTANCE_RESULTS.json): 14/14 actual AI checks passed; three new-kind sandbox orders were created successfully. Buyer approval/capture of the new discount kinds remains unverified. The separate completed $106/$108 captures used original cashback examples.
+
+Confirmed sandbox receipts now show simulated estimated cashback and estimated effective cost separately from the amount captured. Customer eligibility is self-declared and saved in the signed checkout session. A fresh user-operated capture is required to verify these new fields in the deployed happy path; local rendering and 1,800 mocked receipt scenarios are verified.
+
+Eight [deployed HTTP checks](docs/RECEIPT_HTTP_VERIFICATION.json) also pass, including the signed-session round trip and rejection of unapproved payment confirmation.

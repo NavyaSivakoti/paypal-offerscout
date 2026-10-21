@@ -98,7 +98,7 @@ export default function OfferScout() {
     setPaymentBusy(true); setPaymentError('');
     try {
       if (checkoutAttempt.current?.offerId !== selected.id) checkoutAttempt.current = { offerId: selected.id, requestId: createRequestId() };
-      const response = await fetch('/api/paypal/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(checkoutAttempt.current) });
+      const response = await fetch('/api/paypal/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({...checkoutAttempt.current,newCustomer}) });
       const data: unknown = await response.json();
       if (!response.ok) { const error = z.object({ error: z.string() }).safeParse(data); throw new Error(error.success ? error.data.error : 'Checkout unavailable.'); }
       const result = z.object({ approvalUrl: z.string().url() }).parse(data);

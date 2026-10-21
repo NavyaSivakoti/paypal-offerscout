@@ -1,0 +1,63 @@
+{
+  "verifiedAt": "2026-10-21T00:08:52.254446+00:00",
+  "scope": "Hosted HTTP guards and signed-session round trip for an unapproved sandbox order. No buyer approval or capture; completed receipt covered by injected-provider tests and local rendering.",
+  "passed": 8,
+  "total": 8,
+  "checks": [
+    {
+      "name": "status",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "passed": true,
+      "error": null
+    },
+    {
+      "name": "valid demo request",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "passed": true,
+      "error": null
+    },
+    {
+      "name": "reject JSON-like media type",
+      "expectedStatus": 415,
+      "actualStatus": 415,
+      "passed": true,
+      "error": "JSON input required."
+    },
+    {
+      "name": "reject cross-origin request",
+      "expectedStatus": 403,
+      "actualStatus": 403,
+      "passed": true,
+      "error": "Request must originate from this app."
+    },
+    {
+      "name": "reject malformed JSON",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "passed": true,
+      "error": "Invalid request fields."
+    },
+    {
+      "name": "reject forged checkout binding",
+      "expectedStatus": 403,
+      "actualStatus": 403,
+      "passed": true,
+      "error": "Checkout session is missing, expired, or invalid. Start checkout again."
+    },
+    {
+      "name": "create sandbox order with customer context",
+      "actualStatus": 200,
+      "passed": true,
+      "orderId": "2P6342009W621683B"
+    },
+    {
+      "name": "unapproved order rejects capture and returns no estimate",
+      "expectedStatus": 409,
+      "actualStatus": 409,
+      "passed": true,
+      "error": "Approve the order in PayPal sandbox before completing payment."
+    }
+  ]
+}

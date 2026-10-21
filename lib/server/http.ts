@@ -5,7 +5,7 @@ export class AppError extends Error {
 }
 export async function readInput<T>(request:Request,schema:z.ZodType<T>):Promise<T>{
  if(request.headers.get('origin')!==new URL(request.url).origin)throw new AppError('Request must originate from this app.',403);
- if(!request.headers.get('content-type')?.startsWith('application/json'))throw new AppError('JSON input required.',415);
+ if(request.headers.get('content-type')?.split(';')[0].trim().toLowerCase()!=='application/json')throw new AppError('JSON input required.',415);
  if(Number(request.headers.get('content-length'))>4096)throw new AppError('Request too large.',413);
  const reader=request.body?.getReader();if(!reader)throw new AppError('Missing input.');
  let size=0;const chunks:Uint8Array[]=[];

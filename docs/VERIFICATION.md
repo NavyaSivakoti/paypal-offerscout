@@ -4,7 +4,7 @@ Updated October 20, 2026. Hosted AI and sandbox order creation have been checked
 
 ## Automated results
 
-- 102 tests passed; zero failures, skips, or cancellations.
+- 147 tests passed; zero failures, skips, or cancellations.
 - TypeScript strict compilation passed with `tsc --noEmit`.
 - `git diff --check` passed.
 - Dataset checks cover caps, shipping exclusions, minimum spend, new-customer uncertainty, expiration, cent rounding, zero values, and headline versus effective-cost ranking.
@@ -70,3 +70,15 @@ Seller-dashboard reconciliation, real provider failure handling, deployed cancel
 - The first expanded v5 run passed 12/14 exact field checks. Two remaining responses used equivalent family filters (cashback + $5, or headline-rate + no offer type). Matching results were already constrained correctly. Deterministic canonicalization now normalizes those forms; the v6 rerun passed all 14 without relaxing the expected field assertions. This is development validation, not a holdout benchmark.
 - Three actual PayPal sandbox orders were created for fixed cashback, fixed-dollar discounts, and percentage discounts. All returned sandbox approval URLs. These order-creation results are retained from the preceding v5 run; the PayPal adapter did not change for the v6 canonicalization. No buyer approval/capture was performed on these new orders. Do not imply every new offer was captured end-to-end.
 - A subsequent user-provided screenshot of the refreshed receipt showed a completed $108 sandbox capture on the original Trail & Field purchase. Seller-account reconciliation remains unverified.
+
+## Checkout regression expansion and estimated cashback receipt — October 20, 2026 (America/Phoenix)
+
+- Added 45 tests, bringing the suite to 147 passing tests. New cases exercise the actual checkout orchestration with injected provider responses: approval, completed-order retry without recapture, unapproved/voided orders, pending/declined captures, provider failures, wrong order identity, and tampered amounts.
+- Four new regression checks initially failed: direct validation helpers did not explicitly reject currency mismatches (the network adapter already enforced USD), checkout sessions remained valid at the exact expiry instant, and the JSON media-type check accepted application/jsonp. Added explicit currency guards and corrected expiry and media-type matching.
+- A shared strict receipt schema checks completed status, balanced payment/estimate amounts, nonnegative integer cents, no benefit on ineligible offers, and the no-stacking rule. All 600 offers were exercised under unknown, returning, and self-declared-new customer states: 1,800 receipt scenarios.
+- Customer status is saved in the signed HttpOnly checkout binding; the capture endpoint ignores client-supplied estimate amounts. Legacy bindings conservatively use unknown status. This is self-declared demo eligibility, not external merchant verification.
+- Confirmed receipts now display simulated estimated cashback, instant discount applied, and estimated cost after cashback. Cashback does not change the amount captured. Expired, excluded, below-minimum, or unverified-customer offers display zero benefit and the reason.
+- A local QA fixture displayed $108 paid, $10.80 estimated cashback, and $97.20 estimated cost at desktop and 390 × 844 iframe widths. The fixture route and harness were removed before publication. This is rendering evidence, not a new real PayPal capture.
+- Strict TypeScript compilation passed. The previous 14-case live AI report remains historical evidence for the unchanged v6 AI pipeline. A fresh user-operated sandbox capture is still needed to verify the newly added receipt fields through the deployed happy path.
+
+- [Deployed HTTP checks](RECEIPT_HTTP_VERIFICATION.json): 8/8 passed, including JSON/origin/input guards, forged-session rejection, actual sandbox order creation with saved customer context, and rejection of an unapproved order without issuing a receipt or estimate. No buyer approval/capture was performed by this check.

@@ -28,7 +28,7 @@ We separated intent interpretation from money calculations and treated unknown e
 
 ## Validation so far
 
-102 automated checks pass, including hand-labeled calculations, merchant/product matching, customer-status handling, four benefit kinds, exact-dollar filters, all 600 catalog order-body amounts, amount tampering, pending captures, signed checkout bindings, and redirect restrictions. Provider responses in unit tests are mocked. Separately, 14 bounded hosted checks passed against the actual OpenAI service on the expanded catalog with gpt-4o-mini and offerscout-intent-v6. Three actual PayPal sandbox orders were created for the new fixed cashback and discount kinds. No new-kind buyer approval/capture was performed. User-operated runs of the original cashback examples produced completed $106 and $108 capture receipts. These screenshots establish the observed happy path; seller dashboard reconciliation and real cancellation/failure paths are not independently verified. The evaluation is a development set, not a general accuracy estimate.
+147 automated checks pass, including hand-labeled calculations, merchant/product matching, customer-status handling, four benefit kinds, exact-dollar filters, all 600 catalog order-body amounts, amount tampering, pending captures, signed checkout bindings, and redirect restrictions. Provider responses in unit tests are mocked. Separately, 14 bounded hosted checks passed against the actual OpenAI service on the expanded catalog with gpt-4o-mini and offerscout-intent-v6. Three actual PayPal sandbox orders were created for the new fixed cashback and discount kinds. No new-kind buyer approval/capture was performed. User-operated runs of the original cashback examples produced completed $106 and $108 capture receipts. These screenshots establish the observed happy path; seller dashboard reconciliation and real cancellation/failure paths are not independently verified. The evaluation is a development set, not a general accuracy estimate.
 
 ## Scope and limitations
 
@@ -45,3 +45,5 @@ Before copying to Devpost: verify live behavior, record the actual configured mo
 ### Expanded test catalog
 
 The current prototype has 150 fictional footwear merchants and 600 sample offers across percentage/fixed cashback and percentage/fixed instant discounts. This is synthetic test scale, not real merchants onboarded. Eligibility and money remain deterministic; instant discounts affect the sandbox payment while deferred cashback stays an estimate. Research sources and limits are documented in OFFER_DATA_RESEARCH.md. The previous 12-case live evaluation used the original catalog and v4 prompt; source now uses v6.
+
+The confirmed receipt separately displays simulated cashback, applied instant discount, and estimated effective cost. Only the payment capture is confirmed by PayPal; the cashback estimate comes from fictional catalog terms and saved self-declared eligibility.

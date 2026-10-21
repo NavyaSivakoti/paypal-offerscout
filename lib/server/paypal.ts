@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { offers, evaluate } from '../offers.ts';
+import { receiptSchema, type PaymentReceipt } from '../receipt.ts';
 import { AppError } from './http.ts';
 const BASE='https://api-m.sandbox.paypal.com';
-const amountSchema=z.object({currency_code:z.literal('USD'),value:z.string()});
+const amountSchema=z.object({currency_code:z.literal('USD'),value:z.string().regex(/^(?:0|[1-9]\d*)\.\d{2}$/)});
 export const orderSchema=z.object({id:z.string(),status:z.string(),purchase_units:z.array(z.object({custom_id:z.string(),amount:amountSchema,payments:z.object({captures:z.array(z.object({id:z.string(),status:z.string(),amount:amountSchema}))}).optional()})),links:z.array(z.object({href:z.string(),rel:z.string()})).optional()});
 export type SandboxOrder=z.infer<typeof orderSchema>;
 export interface PaypalConfig {clientId:string;clientSecret:string;origin:string;}
@@ -20,13 +21,19 @@ export function orderBody(offerId:string,origin:string):object {
 }
 export function assertOrder(order:SandboxOrder,offerId:string):void {
  const offer=offers.find(o=>o.id===offerId);const unit=order.purchase_units[0];
- if(!offer||order.purchase_units.length!==1||unit.custom_id!==offer.id||unit.amount.value!==(evaluate(offer,null).payable/100).toFixed(2))throw new AppError('Order does not match the selected sample offer.',409);
+ if(!offer||order.purchase_units.length!==1||unit.custom_id!==offer.id||unit.amount.currency_code!=='USD'||unit.amount.value!==(evaluate(offer,null).payable/100).toFixed(2))throw new AppError('Order does not match the selected sample offer.',409);
 }
-export function receipt(order:SandboxOrder,offerId:string):{orderId:string;captureId:string;paidCents:number;status:'COMPLETED';sandbox:true}{
+export function receipt(order:SandboxOrder,offerId:string,newCustomer:boolean|null=null):PaymentReceipt {
  assertOrder(order,offerId);const captures=order.purchase_units[0].payments?.captures;
- if(order.status!=='COMPLETED'||captures?.length!==1||captures[0].status!=='COMPLETED'||captures[0].amount.value!==order.purchase_units[0].amount.value)throw new AppError('Payment is not confirmed complete. Check the sandbox account before retrying.',409);
- const offer=offers.find(o=>o.id===offerId)!;
- return {orderId:order.id,captureId:captures[0].id,paidCents:evaluate(offer,null).payable,status:'COMPLETED',sandbox:true};
+ if(!order.id||order.status!=='COMPLETED'||captures?.length!==1||!captures[0].id||captures[0].status!=='COMPLETED'||captures[0].amount.currency_code!=='USD'||captures[0].amount.value!==order.purchase_units[0].amount.value)throw new AppError('Payment is not confirmed complete. Check the sandbox account before retrying.',409);
+ const offer=offers.find(o=>o.id===offerId)!;const value=evaluate(offer,newCustomer);
+ // Payable discounts never depend on client customer status in the current catalog.
+ if(value.payable!==evaluate(offer,null).payable)throw new AppError('Checkout eligibility changed. Start checkout again.',409);
+ return receiptSchema.parse({orderId:order.id,captureId:captures[0].id,paidCents:value.payable,status:'COMPLETED',sandbox:true,
+  offerId:offer.id,merchant:offer.merchant,product:offer.product,merchandiseCents:offer.price,shippingCents:offer.shipping,
+  instantDiscountCents:value.discount,estimatedCashbackCents:value.reward,estimatedEffectiveCents:value.effective,
+  eligibilityMet:value.eligible,eligibilityReason:value.reason,customerStatus:newCustomer===null?'unknown':newCustomer?'self-declared-new':'returning',
+  estimateAsOf:'2026-10-17',rewardsAreSimulated:true});
 }
 export function approvalUrl(order:SandboxOrder):string {
  const href=order.links?.find(l=>l.rel==='payer-action'||l.rel==='approve')?.href;
@@ -46,13 +53,27 @@ export function paypalClient(settings:PaypalConfig,fetcher:typeof fetch=fetch){
  return {create:(offerId:string,id:string)=>request('/v2/checkout/orders','POST',id,orderBody(offerId,settings.origin)),get:(id:string)=>request(`/v2/checkout/orders/${encodeURIComponent(id)}`,'GET'),capture:(id:string)=>request(`/v2/checkout/orders/${encodeURIComponent(id)}/capture`,'POST',`capture-${id}`,{})};
 }
 // Signed, HttpOnly checkout binding prevents capture of an arbitrary order from another browser.
-const bindingSchema=z.object({orderId:z.string().regex(/^[A-Z0-9]{5,32}$/),offerId:z.string(),expires:z.number().int()}).strict();
+const bindingSchema=z.object({orderId:z.string().regex(/^[A-Z0-9]{5,32}$/),offerId:z.string(),newCustomer:z.boolean().nullable().optional(),expires:z.number().int()}).strict();
 export type CheckoutBinding=z.infer<typeof bindingSchema>;
 async function signingKey(secret:string):Promise<CryptoKey>{return crypto.subtle.importKey('raw',new TextEncoder().encode(`offerscout-checkout-v1:${secret}`),{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);}
 export async function signBinding(binding:CheckoutBinding,secret:string):Promise<string>{const body=btoa(JSON.stringify(binding));const sig=await crypto.subtle.sign('HMAC',await signingKey(secret),new TextEncoder().encode(body));return `${body}.${Array.from(new Uint8Array(sig),b=>b.toString(16).padStart(2,'0')).join('')}`;}
 export async function verifyBinding(value:string,secret:string,now=Date.now()):Promise<CheckoutBinding>{
  try{const [body,signature,...rest]=value.split('.');if(rest.length||!body||!/^[a-f0-9]{64}$/.test(signature))throw new Error();const bytes=Uint8Array.from(signature.match(/../g)!,x=>parseInt(x,16));
  if(!await crypto.subtle.verify('HMAC',await signingKey(secret),bytes,new TextEncoder().encode(body)))throw new Error();
- const binding=bindingSchema.parse(JSON.parse(atob(body)));if(binding.expires<now)throw new Error();return binding;
+ const binding=bindingSchema.parse(JSON.parse(atob(body)));if(binding.expires<=now)throw new Error();return binding;
  }catch{throw new AppError('Checkout session is missing, expired, or invalid. Start checkout again.',403);}
+}
+
+export type CheckoutClient = Pick<ReturnType<typeof paypalClient>, 'get' | 'capture'>;
+/** Only a verified, completed capture can produce a receipt or reward estimate. */
+export async function completeCheckout(client:CheckoutClient,binding:CheckoutBinding):Promise<PaymentReceipt> {
+ let order=await client.get(binding.orderId);
+ if(order.id!==binding.orderId)throw new AppError('PayPal returned a different order.',409);
+ assertOrder(order,binding.offerId);
+ if(order.status!=='COMPLETED'){
+  if(order.status!=='APPROVED')throw new AppError('Approve the order in PayPal sandbox before completing payment.',409);
+  order=await client.capture(binding.orderId);
+  if(order.id!==binding.orderId)throw new AppError('PayPal returned a different order.',409);
+ }
+ return receipt(order,binding.offerId,binding.newCustomer??null);
 }

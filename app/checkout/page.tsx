@@ -3,15 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, CircleCheck, CircleHelp, LoaderCircle, LockKeyhole, ShieldCheck, Sparkles, X } from 'lucide-react';
 import { z } from 'zod';
-import { money } from '../../lib/offers';
 
-const receiptSchema = z.object({
-  orderId: z.string(),
-  captureId: z.string(),
-  paidCents: z.number().int(),
-  status: z.literal('COMPLETED'),
-  sandbox: z.literal(true),
-});
+import { receiptSchema } from '../../lib/receipt';
+import { PaymentReceiptDetails } from '../../components/payment-receipt';
 
 export default function Checkout() {
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -45,7 +39,9 @@ export default function Checkout() {
         const message = z.object({ error: z.string() }).safeParse(data);
         throw new Error(message.success ? message.data.error : 'Payment could not be confirmed.');
       }
-      setReceipt(receiptSchema.parse(data));
+      const confirmed = receiptSchema.parse(data);
+      if (confirmed.orderId !== orderId) throw new Error('The receipt belongs to a different checkout.');
+      setReceipt(confirmed);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Payment could not be confirmed.');
     } finally {
@@ -79,16 +75,7 @@ export default function Checkout() {
             <div className="eyebrow">{receipt ? 'PAYMENT COMPLETE · SANDBOX' : 'PAYPAL SANDBOX · TEST MONEY ONLY'}</div>
             <h1 id="checkout-title">{heading}</h1>
             {receipt ? (
-              <div role="status">
-                <p className="checkout-description" data-testid="payment-success">PayPal confirmed a completed sandbox capture of {money(receipt.paidCents)}.</p>
-                <div className="receipt-total"><span>Test amount paid</span><strong>{money(receipt.paidCents)} <small>USD</small></strong></div>
-                <dl className="receipt-details">
-                  <div><dt>Status</dt><dd className="receipt-status"><Check size={14} aria-hidden="true" /> Completed</dd></div>
-                  <div><dt>Order ID</dt><dd>{receipt.orderId}</dd></div>
-                  <div><dt>Capture ID</dt><dd>{receipt.captureId}</dd></div>
-                </dl>
-                <p className="checkout-fineprint">No real purchase or cashback was issued.</p>
-              </div>
+              <PaymentReceiptDetails receipt={receipt} />
             ) : cancelled ? (
               <p className="checkout-description">You’re back at OfferScout. No capture was requested by this cancellation page.</p>
             ) : missingOrder ? (
