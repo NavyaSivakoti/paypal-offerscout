@@ -2,14 +2,14 @@
 
 Reviewed October 18, 2026 against https://paypalaihackathon.devpost.com/rules and https://paypalaihackathon.devpost.com/resources. This is an engineering checklist, not organizer approval or a prediction of a prize.
 
-Integration and source-publication evidence updated October 20, 2026; see VERIFICATION.md and LIVE_ACCEPTANCE_RESULTS.json.
+Integration evidence is historical; chatbot evidence updated November 4, 2026; see VERIFICATION.md and LIVE_ACCEPTANCE_RESULTS.json.
 
 ## Required gates
 
 | Requirement | Current evidence | Remaining gate |
 | --- | --- | --- |
 | Central PayPal sandbox integration | Actual sandbox authentication/order creation verified; user-operated approval and $106 completed capture shown in receipt | Seller account reconciliation and hosted cancel/failure checks |
-| Meaningful AI | Current v9 development rerun passed 100 cases (50 gpt-4o-mini calls, 50 deterministic guide/calculation replies); 156 quoted-money assertions passed; code controls eligibility and money | Verified for the recorded cases; preserve access during judging and accurately disclose evaluation limits |
+| Meaningful AI | Structured semantic planner with gpt-6.1-sol; full v16 run plus 29 v17 retests covers both frozen 100-prompt suites; latest 200 primary expectations pass under assistant review, with 336 quoted-money assertions; code controls eligibility and money | Verified for the recorded cases; preserve access during judging and accurately disclose evaluation limits |
 | Working prototype | Home, merchant Savings, floating chat, terms, live AI, sandbox checkout, and 150 fictional merchants / 600 mixed-kind sample offers | AI and completed checkout checked separately; rehearse the continuous AI → selection → approval → receipt demo |
 | Judge access | Owner-private preview deployed | Provide judge-accessible hosting or complete reproducible setup; verify without owner session |
 | Public source + license | Public NavyaSivakoti/paypal-offerscout repository with source, setup instructions, tests, and MIT LICENSE | Verify final submitted commit and license display before submission |

@@ -15,6 +15,13 @@ export const intentSchema = z.object({
  budgetBasis: z.enum(['payable','effective']).optional(),
  ratePercent: z.number().min(0).max(100).nullable().optional(),
  newCustomerOffersOnly: z.boolean().optional(),
+ merchantSet: z.array(z.enum(merchantNames)).max(5).optional(),
+ merchantPrefix: z.string().max(40).nullable().optional(),
+ minimumPayableCents: z.number().int().min(0).max(10000000).nullable().optional(),
+ maximumEffectiveCents: z.number().int().min(0).max(10000000).nullable().optional(),
+ minimumRatePercent: z.number().min(0).max(100).nullable().optional(),
+ maximumRatePercent: z.number().min(0).max(100).nullable().optional(),
+ freeShipping: z.boolean().optional(),
 }).strict();
 export type ShoppingIntent = z.infer<typeof intentSchema>;
 export const intentJsonSchema = {

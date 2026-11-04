@@ -3,7 +3,27 @@ import { offers, evaluate, money, offerKind, offerSummary, type Offer } from './
 export const DEMO_DATE = '2026-10-17';
 export function matchingOffers(intent: ShoppingIntent, customer: boolean | null, catalog: Offer[] = offers): Offer[] {
   if (intent.intent !== 'search') return [];
-  return catalog.filter(offer => evaluate(offer, customer, DEMO_DATE).eligible && (!intent.newCustomerOffersOnly || offer.newCustomerOnly) && (intent.ratePercent == null || offer.rate === intent.ratePercent) && (!intent.merchant || offer.merchant === intent.merchant) && (!intent.category || offer.category === intent.category) && (!intent.offerType || offerKind(offer).startsWith(intent.offerType)) && (intent.benefitAmountCents == null || (offerKind(offer).endsWith('fixed') && offer.amountOff === intent.benefitAmountCents)) && (intent.sort !== 'headline-rate' || offerKind(offer) === 'cashback-percent') && (!intent.searchText || `${offer.product} ${offer.merchant}`.toLowerCase().includes(intent.searchText.toLowerCase())) && (intent.maximumPayableCents === null || evaluate(offer, customer, DEMO_DATE)[intent.budgetBasis === 'effective' ? 'effective' : 'payable'] <= intent.maximumPayableCents)).sort((a, b) => {
+  return catalog.filter(offer => {
+    const value = evaluate(offer, customer, DEMO_DATE);
+    const kind = offerKind(offer);
+    return value.eligible &&
+      (!intent.merchant || offer.merchant === intent.merchant) &&
+      (!intent.merchantSet?.length || intent.merchantSet.includes(offer.merchant)) &&
+      (!intent.merchantPrefix || offer.merchant.toLowerCase().startsWith(intent.merchantPrefix.toLowerCase())) &&
+      (!intent.category || offer.category === intent.category) &&
+      (!intent.searchText || `${offer.product} ${offer.merchant}`.toLowerCase().includes(intent.searchText.toLowerCase())) &&
+      (!intent.offerType || kind.startsWith(intent.offerType)) &&
+      (intent.benefitAmountCents == null || (kind.endsWith('fixed') && offer.amountOff === intent.benefitAmountCents)) &&
+      (intent.ratePercent == null || (kind.endsWith('percent') && offer.rate === intent.ratePercent)) &&
+      (intent.minimumRatePercent == null || (kind.endsWith('percent') && offer.rate >= intent.minimumRatePercent)) &&
+      (intent.maximumRatePercent == null || (kind.endsWith('percent') && offer.rate <= intent.maximumRatePercent)) &&
+      (!intent.freeShipping || offer.shipping === 0) &&
+      (!intent.newCustomerOffersOnly || offer.newCustomerOnly) &&
+      (intent.sort !== 'headline-rate' || kind === 'cashback-percent') &&
+      (intent.minimumPayableCents == null || value.payable >= intent.minimumPayableCents) &&
+      (intent.maximumPayableCents === null || value[intent.budgetBasis === 'effective' ? 'effective' : 'payable'] <= intent.maximumPayableCents) &&
+      (intent.maximumEffectiveCents == null || value.effective <= intent.maximumEffectiveCents);
+  }).sort((a, b) => {
     const ea = evaluate(a, customer, DEMO_DATE), eb = evaluate(b, customer, DEMO_DATE);
     return (intent.sort === 'headline-rate' ? b.rate - a.rate : intent.sort === 'payable' ? ea.payable - eb.payable : ea.effective - eb.effective) || a.id.localeCompare(b.id);
   });
@@ -14,13 +34,14 @@ export function explainRecommendation(intent: ShoppingIntent, customer: boolean 
   if (intent.intent === 'tax-unknown') return { answer: 'Tax and shipping are excluded from the cashback calculation; only eligible merchandise earns rewards. Tax is not available in this sample catalog. Prices include listed shipping but exclude tax; I cannot give a total including tax.', offerIds: [] };
   if (intent.intent === 'unsupported') return { answer: 'I can compare the fictional shoe offers in this catalog. I cannot verify real merchant offers, invent cashback, or confirm rewards earned. Try a sample merchant, road shoes, trail shoes, or walking shoes. Offers are not stacked.', offerIds: [] };
   const choices = matchingOffers(intent, customer, catalog), best = choices[0];
+  if (!best && intent.newCustomerOffersOnly && customer !== true) return { answer: `New-customer-only offers are ineligible for your current ${customer === false ? 'returning' : 'unknown'} status and receive $0 estimated rewards. I have not changed your eligibility. Choose your own status in settings or search for other eligible offers.`, offerIds: [] };
   if (!best) return { answer: 'No eligible sample offers match those conditions. Expired offers, excluded products, unmet minimums, and unverified new-customer offers are not recommended. Try another budget, offer type, or sample merchant. Your budget has not been increased automatically.', offerIds: [] };
   const note = customer === false ? 'You declared that you are a returning customer. New-customer-only offers are ineligible and receive $0 estimated rewards. ' : '';
   if (intent.view === 'merchants' || (intent.view == null && intent.maximumPayableCents === null && !intent.category && !intent.searchText && intent.sort !== 'payable')) {
     const seen = new Set<string>();
     const representatives = choices.filter(offer => { if (seen.has(offer.merchant)) return false; seen.add(offer.merchant); return true; });
     const summary = representatives.slice(0, 5).map(offer => `${offer.merchant}: ${offerSummary(offer)}`).join('\n');
-    return { answer: `${note}${representatives.length} matching fictional merchants. Showing ${Math.min(5, representatives.length)} here; browse all matches in Savings.\n${summary}\nTerms vary by sample purchase. Discounts reduce the test payment; cashback is estimated separately. Activation is assumed. These are fictional offers, not rewards earned.`, offerIds: representatives.slice(0, 12).map(offer => offer.id) };
+    return { answer: `${note}${representatives.length} matching fictional merchants. Showing ${Math.min(5, representatives.length)} here; browse all matches in Savings.\n${summary}\nOnly eligible offers are shown; expired or unmet conditions are excluded. Terms vary by sample purchase. Discounts reduce the test payment; cashback is estimated separately. Activation is assumed. These are fictional offers, not rewards earned.`, offerIds: representatives.slice(0, 12).map(offer => offer.id) };
   }
   const value = evaluate(best, customer, DEMO_DATE);
   const criterion = intent.sort === 'headline-rate' ? 'highest headline cashback rate (percentage cashback only)' : intent.sort === 'payable' ? 'lowest payment today' : 'lowest estimated cost after rewards';

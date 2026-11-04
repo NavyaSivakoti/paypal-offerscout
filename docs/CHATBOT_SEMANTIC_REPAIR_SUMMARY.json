@@ -1,0 +1,197 @@
+{
+  "completedAt": "2026-11-04T22:28:31.153430+00:00",
+  "method": "One full live run of both unchanged frozen suites on v16, followed by 29 targeted v17 checks after refinement. Each of these 200 rows is the latest recorded observation for that unchanged prompt. 17 transport failures during the targeted stage were retried successfully with a refreshed private session; failed attempts are not counted as successful responses. No payment or external action was executed. Backend contract testing, not browser click-throughs.",
+  "suiteHashes": {
+    "1": "e6eab5153f4fe92901f8d35964c55086a24caabab404a4d736853158fe4c4752",
+    "2": "a2aaf846cc780cdece2330aeeb65b9f45d5d693aec65ca1713a1fa14b9ec5481"
+  },
+  "total": 200,
+  "http200": 200,
+  "automatedChecksPassed": 200,
+  "runStages": [
+    {
+      "stage": "Full v16",
+      "uniquePrompts": 200,
+      "http200": 200,
+      "structuredPass": 200,
+      "qualitative": {
+        "Pass": 196,
+        "Partial": 4,
+        "Fail": 0
+      },
+      "sourceCommit": "b560e1468144bc6ae545378a3b4699ed33faa5d0"
+    },
+    {
+      "stage": "Targeted v17, first attempt",
+      "uniquePrompts": 29,
+      "http200": 12,
+      "transportFailures": 17,
+      "sourceCommit": "c4df798c5d6678b84ef15ca5840ef6afad9883c6"
+    },
+    {
+      "stage": "Targeted v17, transport retry",
+      "uniquePrompts": 17,
+      "http200": 17,
+      "structuredPass": 17,
+      "sourceCommit": "c4df798c5d6678b84ef15ca5840ef6afad9883c6"
+    }
+  ],
+  "transportFailures": [
+    {
+      "id": "U090",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U118",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U119",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U123",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U124",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U127",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U136",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U141",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U145",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U154",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U161",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U162",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U167",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U168",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U198",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U199",
+      "failure": [
+        "URLError"
+      ]
+    },
+    {
+      "id": "U200",
+      "failure": [
+        "URLError"
+      ]
+    }
+  ],
+  "localChecks": {
+    "unitTestsPassed": 253,
+    "strictTypeScript": true,
+    "changedFileEslint": true,
+    "productionBuild": true,
+    "browserRetested": false,
+    "freshBuyerCapture": false
+  },
+  "reviewSummary": {
+    "Pass": 200
+  },
+  "narrativeMoneySummary": {
+    "total": 336,
+    "passed": 336
+  },
+  "models": {
+    "gpt-6.1-sol": 200
+  },
+  "promptVersions": {
+    "offerscout-plan-v16": 171,
+    "offerscout-plan-v17": 29
+  },
+  "limitations": [
+    "These frozen cases informed development; results are not a holdout benchmark or general accuracy estimate.",
+    "Live backend requests were exercised; this is not 200 browser click-through tests.",
+    "No payment, capture, refund, email or external deletion was executed during this audit.",
+    "Browser verification and a fresh sandbox buyer approval/capture remain separate checks.",
+    "Assistant qualitative review is not an independent human usability study."
+  ],
+  "recordedPlanReplay": {
+    "matched": 183,
+    "intentionalWordingChanges": [
+      "U071",
+      "U072",
+      "U076",
+      "U077",
+      "U141",
+      "U154",
+      "U167",
+      "U199"
+    ],
+    "skippedCalculations": [
+      "U052",
+      "U053",
+      "U055",
+      "U138",
+      "U161",
+      "U162",
+      "U163",
+      "U164",
+      "U165"
+    ],
+    "note": "All eight changed paths were retested live on v17. Numeric token guards left all other replayed plans unchanged; this is not another model run."
+  }
+}

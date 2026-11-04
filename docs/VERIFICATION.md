@@ -1,5 +1,20 @@
 # OfferScout verification record
 
+## Current semantic repair — November 4, 2026
+
+- 253 local tests pass. Strict TypeScript, changed-file ESLint, source whitespace checks and production build pass. Full-repository lint retains the previously recorded checkout-page issues.
+- Live mode uses `gpt-6.1-sol` and structured request planning. Current planner version is `offerscout-plan-v17`. Factual help, integer-cent calculations, filter transitions and eligibility remain controlled by code. No live keyword FAQ interception remains.
+- Both original frozen 100-prompt suites were run in full on v16: 200/200 HTTP 200 and 200/200 structured checks. Qualitative review found 196 Pass and four Partial replies, despite the structured checks passing.
+- Active-offer browsing, multi-item cart guidance, cancellation guidance and explicit refusal precedence were refined. All 29 affected or financial-boundary checks passed on v17. Seventeen connection failures in that stage were retried successfully with a refreshed private session; the failed attempts are recorded separately.
+- Latest recorded observations for the 200 unchanged prompts: 200 Pass under assistant qualitative review, 200 structured passes, and 336/336 independently calculated quoted-money checks. This combines the full v16 run with 29 v17 retests; it is not a claim that all 200 were independently rerun on v17.
+- Replaying recorded plans through the final deterministic executor produced 183 identical outputs and eight intentional wording changes, all covered by the targeted live retest. Nine calculation plans did not record raw operands and were not replayed; their actual numeric replies were reviewed separately and calculator regression tests pass.
+- Source expectations and prompt hashes were preserved. These cases informed development; there is no holdout or general accuracy claim. No model training or fine-tuning was performed.
+- This was backend conversation testing. Browser interaction and fresh PayPal buyer approval/capture were not repeated. No payment, email, refund or deletion was executed during the audit.
+
+Evidence: [200-case results](CHATBOT_SEMANTIC_REPAIR_RESULTS.json), [summary and run history](CHATBOT_SEMANTIC_REPAIR_SUMMARY.json), [original first set](CHATBOT_AUDIT_PROMPTS.json), [original additional set](CHATBOT_AUDIT_ADDITIONAL_PROMPTS.json).
+
+## Historical verification records
+
 Updated October 20, 2026. Hosted AI and sandbox order creation have been checked with actual credentials. A user-operated buyer run returned a completed $106 sandbox capture receipt.
 
 ## Automated results
