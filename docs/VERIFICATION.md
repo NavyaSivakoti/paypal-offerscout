@@ -1,5 +1,13 @@
 # OfferScout verification record
 
+## Confirmation handoff
+
+- Pending comparison state preserves supported category/budget constraints until accepted or declined.
+- The API and React chat use the same context transition function. Unrelated help, independent searches, refusal and completed acceptance clear stale pending questions. No payment action is added.
+- 265 local tests cover the implementation, including 12 synthetic conversation cases. Fixtures use invented product-specification requirements rather than personal statements.
+- Raw conversation reports are not distributed. Previous live observations are historical; they are not a fresh verification of the current planner version.
+- Browser click-through verification and fresh sandbox buyer capture remain separate checks.
+
 ## Current semantic repair — November 4, 2026
 
 - 253 local tests pass. Strict TypeScript, changed-file ESLint, source whitespace checks and production build pass. Full-repository lint retains the previously recorded checkout-page issues.

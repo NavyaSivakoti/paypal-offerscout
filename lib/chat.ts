@@ -1,12 +1,10 @@
-import { z } from 'zod';
-import { intentSchema, normalizeIntent, type ShoppingIntent } from './intent.ts';
+import { normalizeIntent, type ShoppingIntent } from './intent.ts';
+import type { ChatContext } from './conversation.ts';
 import { merchantNames } from './merchants.ts';
 import { offers, evaluate, money, offerKind, productNames } from './offers.ts';
 import { DEMO_DATE, matchingOffers } from './recommend.ts';
 
-// Context carries catalog filters and IDs, never user-supplied prices or reward totals.
-export const chatContextSchema = z.object({ intent: intentSchema, offerIds: z.array(z.string().max(80)).max(12) }).strict();
-export type ChatContext = z.infer<typeof chatContextSchema>;
+export { chatContextSchema, type ChatContext } from './conversation.ts';
 export const isFollowUp = (prompt: string): boolean => /\b(those|these|ones|that|actually|i meant|instead|same|cheaper)\b/i.test(prompt) && !/\b(?:offers?|shoes|purchases?|merchants?)\s+that\b/i.test(prompt) && !/\b(start over|reset|new search|forget|clear)\b/i.test(prompt);
 export const isMerchantView = (intent: ShoppingIntent): boolean => intent.view === 'merchants' || (intent.view == null && intent.maximumPayableCents === null && !intent.category && !intent.searchText && intent.sort !== 'payable');
 const dollars = (value: string): number => { const [whole, fraction = ''] = value.split('.'); return Number(whole) * 100 + Number(fraction.padEnd(2, '0')); };

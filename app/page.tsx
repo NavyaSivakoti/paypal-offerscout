@@ -5,6 +5,7 @@ import { ArrowRight, Bookmark, Home, Info, MessageCircle, Search, Send, ShieldCh
 import { z } from 'zod';
 import { intentSchema, type ShoppingIntent } from '../lib/intent';
 import { isMerchantView, type ChatContext } from '../lib/chat';
+import { chatContextSchema, contextForAnswer } from '../lib/conversation';
 import { matchingOffers } from '../lib/recommend';
 import { offers, evaluate, money, offerHeadline, offerSummary, type OfferFilter, type Merchant, type Offer } from '../lib/offers';
 import { OfferDetails } from '../components/offer-details';
@@ -18,7 +19,7 @@ const categories: readonly Category[] = ['All', 'Road', 'Trail', 'Walking'];
 const categoryLabels: Record<Category, string> = { All: 'All offers', Road: 'Running', Trail: 'Trail & outdoors', Walking: 'Everyday footwear' };
 const suggestions = ['Which merchants have the highest cashback?', 'Running shoes under $120', 'Why isn’t 15% always better?'];
 type AdvancedFilters = Pick<ShoppingIntent, 'merchantSet' | 'merchantPrefix' | 'minimumPayableCents' | 'maximumEffectiveCents' | 'minimumRatePercent' | 'maximumRatePercent' | 'freeShipping'>;
-const answerSchema = z.object({ answer: z.string(), offerIds: z.array(z.string()), intent: intentSchema, newCustomer: z.boolean().nullable(), mode: z.enum(['demo', 'live']), model: z.string().nullable(), promptVersion: z.string() });
+const answerSchema = z.object({ answer: z.string(), offerIds: z.array(z.string()), intent: intentSchema, newCustomer: z.boolean().nullable(), mode: z.enum(['demo', 'live']), model: z.string().nullable(), promptVersion: z.string(), conversationContext: chatContextSchema.nullable().optional() });
 
 export default function OfferScout() {
   const [screen, setScreen] = useState<Screen>('home');
@@ -90,10 +91,10 @@ export default function OfferScout() {
       const data: unknown = await response.json();
       if (!response.ok) { const error = z.object({ error: z.string() }).safeParse(data); throw new Error(error.success ? error.data.error : 'Could not compare offers. Please try again.'); }
       const result = answerSchema.parse(data);
+      context.current = contextForAnswer(result, context.current);
       appendMessage({ role: 'assistant', text: result.answer, source: result.model ? `AI: ${result.model} · ${result.promptVersion}` : (result.mode === 'live' ? 'OfferScout guide · verified app behavior' : 'Rule-based demo · no AI call'), offerIds: result.offerIds, merchantOnly: result.intent.intent === 'search' && isMerchantView(result.intent) });
       setNewCustomer(result.newCustomer);
       if (result.intent.intent === 'search') {
-        context.current = { intent: result.intent, offerIds: result.offerIds };
         setAdvanced({ merchantSet: result.intent.merchantSet, merchantPrefix: result.intent.merchantPrefix, minimumPayableCents: result.intent.minimumPayableCents, maximumEffectiveCents: result.intent.maximumEffectiveCents, minimumRatePercent: result.intent.minimumRatePercent, maximumRatePercent: result.intent.maximumRatePercent, freeShipping: result.intent.freeShipping });
         setBudgetBasis(result.intent.budgetBasis ?? 'payable'); setRatePercent(result.intent.ratePercent ?? null); setNewCustomerOffersOnly(result.intent.newCustomerOffersOnly ?? false);
         setCategory(result.intent.category ?? 'All'); setMerchant(result.intent.merchant); setQuery(result.intent.searchText ?? '');

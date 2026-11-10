@@ -6,7 +6,7 @@ Independent PayPal AI Hackathon prototype for discovering fictional merchant cas
 
 ## Status
 
-Home, merchant Savings directory, floating chatbot, deterministic reward calculations, structured AI backend, server-side PayPal sandbox order/capture flow, and payment result page are implemented. **The current v9 chatbot passed the 100-case development rerun (50 AI calls and 50 guide/calculation answers), 156 quoted-money assertions, and 195 automated tests. Historical v6 OpenAI extraction passed 14 bounded acceptance checks, and actual PayPal sandbox order creation was verified on October 20, 2026. An interactive buyer run also returned a confirmed $106 sandbox capture, documented from the user-provided receipt.** Missing configuration leaves live features disabled; the rule-based demo remains explicitly labeled. No real purchases or rewards are issued.
+Home, merchant Savings directory, floating chatbot, deterministic reward calculations, structured AI backend, server-side PayPal sandbox order/capture flow, and payment result page are implemented. The current confirmation handoff is covered by 265 local tests, including synthetic multi-turn fixtures. The earlier 200-prompt development audit is historical and was not rerun in full for v18. Actual sandbox order creation and user-operated $106/$108 captures were verified historically; fresh buyer approval/capture for the latest build remains separate. Missing configuration leaves live features disabled; the rule-based demo remains explicitly labeled. No real purchases or rewards are issued.
 
 ## Try the interface
 
@@ -41,13 +41,14 @@ pnpm typecheck
 pnpm build
 ```
 
-The 147 automated tests use injected fake provider responses; they do not spend API credit or contact PayPal. Separate [hosted live acceptance results](docs/LIVE_ACCEPTANCE_RESULTS.json) record 12 checks against `gpt-4o-mini` with `offerscout-intent-v4`. These are a small development acceptance set, not a general accuracy estimate or proof of completed payment.
+The 265 automated tests use injected fake provider responses; they do not spend API credit or contact PayPal. Separate [hosted live acceptance results](docs/LIVE_ACCEPTANCE_RESULTS.json) record 12 checks against `gpt-4o-mini` with `offerscout-intent-v4`. These are a small development acceptance set, not a general accuracy estimate or proof of completed payment.
 
 ## Architecture
 
 - `lib/intent.ts`: strict intent schema and explicitly labeled demo parser.
 - `lib/customer-status.ts`: grounds eligibility in an explicit supported first-person declaration or the user's setting. Model-inferred eligibility cannot override these inputs; contradictory declarations become unknown.
 - `lib/server/request-planner.ts` and `lib/request-plan.ts`: a bounded Responses API call produces a strict structured request plan for search, inspection, help, calculation, clarification or refusal. The live path always uses semantic planning; phrase-based routing is confined to explicitly labeled offline demo mode. Provider failures do not silently fall back. The deployed model is `gpt-6.1-sol` with low reasoning effort; model/version metadata is returned.
+- `lib/conversation.ts`: shared API/UI context transitions, pending price-comparison consent and stale-question clearing; confirmation never triggers a payment.
 - `lib/search-state.ts`: explicit keep/set/clear operations preserve previous constraints or start a new search. Exact evidence grounds named merchants/products and monetary spans; integer-cent parsing rejects unsupported currencies and sub-cent amounts.
 - `lib/assistant-execution.ts`: grounded factual help, exact-purchase inspection and custom calculations. Unsupported requirements block substitutions even when a model proposes search. Compound limitations remain visible.
 - `lib/recommend.ts`, `lib/offers.ts`: deterministic matching, sorting and integer-cent arithmetic. The AI never sets a payment amount or invokes checkout.
@@ -73,7 +74,7 @@ MIT license. Not affiliated with or endorsed by PayPal.
 
 Run `pnpm catalog:export` to regenerate the downloadable catalog. Dev/build also regenerate it. See [research and data provenance](docs/OFFER_DATA_RESEARCH.md), [28 hand-labeled mixed-offer calculations and 12 intent examples](public/data/offerscout-mixed-offer-cases.json), and the original [labeled edge cases](public/data/offerscout-labelled-examples.json). No real merchant affiliation or current offer rate is implied.
 
-The older 12-case v4 hosted report used the original three-merchant catalog; rankings and empty-result expectations from that report do not describe the expanded catalog. Current live source uses `offerscout-plan-v17`; the older v9 intent interpreter remains only as historical/test support. Product names are restricted to the catalog enum. Percentage rates, fixed-dollar benefits, and payment versus after-cashback budgets remain separate constraints. Recommendations exclude expired, below-minimum, excluded, or unverified new-customer offers.
+The older 12-case v4 hosted report used the original three-merchant catalog; rankings and empty-result expectations from that report do not describe the expanded catalog. Current live source uses `offerscout-plan-v19`; the older v9 intent interpreter remains only as historical/test support. Product names are restricted to the catalog enum. Percentage rates, fixed-dollar benefits, and payment versus after-cashback budgets remain separate constraints. Recommendations exclude expired, below-minimum, excluded, or unverified new-customer offers.
 
 [Current expanded-catalog live report](docs/CATALOG_LIVE_ACCEPTANCE_RESULTS.json): 14/14 actual AI checks passed; three new-kind sandbox orders were created successfully. Buyer approval/capture of the new discount kinds remains unverified. The separate completed $106/$108 captures used original cashback examples.
 
@@ -84,10 +85,18 @@ Eight [deployed HTTP checks](docs/RECEIPT_HTTP_VERIFICATION.json) also pass, inc
 
 ### Semantic chatbot repair
 
-The live chatbot now uses a structured request plan rather than keyword FAQ interception. The model interprets the current request and bounded previous search; deterministic code retains or clears filters, verifies evidence, calculates money and enforces eligibility. Budgets paid today and estimated cost after cashback are separate and may coexist. Supported filters include price ranges, rate thresholds, free shipping, merchant prefixes and up to five named merchants. Unsupported attributes, regions or currencies produce a disclosed limitation without a substitute recommendation. Chat cannot execute payments, refunds, email or data deletion.
+The live chatbot now uses a structured request plan rather than keyword FAQ interception. The model interprets the current request and bounded previous search; deterministic code retains or clears filters, verifies evidence, calculates money and enforces eligibility. Budgets paid today and estimated cost after cashback are separate and may coexist. Supported filters include price ranges, rate thresholds, free shipping, merchant prefixes and up to five named merchants. Unsupported attributes, regions or currencies produce a disclosed limitation. For comfort or fit, supported price comparisons are offered only after explicit consent, with unverified attributes disclosed. Chat cannot execute payments, refunds, email or data deletion.
 
 All live turns use the configured AI planner, including help and calculations; factual answers and numeric results are executed by code. Basic demo mode remains explicitly labeled and uses no AI. `interpretedRequest` and applied-operation metadata make the API behavior inspectable without changing the payment flow.
 
 Run `pnpm test` and `pnpm typecheck` for regression coverage. See the dated [verification record](docs/VERIFICATION.md) for current live results and limits. Frozen prompt sets informed development; their results are not a holdout benchmark or general accuracy estimate. Historical v9 results remain in [the original summary](docs/CHATBOT_AUDIT_SUMMARY.json).
 
-Current evidence: [200-case semantic repair results](docs/CHATBOT_SEMANTIC_REPAIR_RESULTS.json) and [run history](docs/CHATBOT_SEMANTIC_REPAIR_SUMMARY.json). A full v16 run was followed by 29 v17 retests; latest observations meet all 200 selected primary expectations under assistant review, with 336 independent quoted-money checks. This is a development result, not a general model-accuracy claim. 253 local tests pass. Browser interaction and a fresh buyer capture were not repeated.
+Historical November 4 evidence: [200-case semantic repair results](docs/CHATBOT_SEMANTIC_REPAIR_RESULTS.json) and [run history](docs/CHATBOT_SEMANTIC_REPAIR_SUMMARY.json). A full v16 run was followed by 29 v17 retests; latest observations meet all 200 selected primary expectations under assistant review, with 336 independent quoted-money checks. This is a development result, not a general model-accuracy claim. 253 local tests passed in that run. Browser interaction and a fresh buyer capture were not repeated.
+
+### Confirmation handoff
+
+The chatbot retains a pending price comparison after explaining an unsupported requirement. Explicit acceptance shows catalog price comparisons with unverified attributes disclosed. Declining, unrelated help and a new search clear the pending question. Confirming never authorizes payment. Pending state contains catalog filters and a limitation code, not free-text personal history.
+
+All 265 local tests pass, including 12 synthetic conversation regressions. Raw conversation reports are not distributed. The earlier 200-case audit is historical and does not certify the current version. Browser click-throughs and a fresh buyer capture remain separate checks.
+
+Use invented test fixtures only. Do not copy personal chat messages into source, test reports or commit messages.

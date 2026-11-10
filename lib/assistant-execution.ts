@@ -6,7 +6,7 @@ import { emptyIntent, applySearchPlan } from './search-state.ts';
 import { explainRecommendation, DEMO_DATE } from './recommend.ts';
 import { parseMoney, parseRate, RequestClarification, type Calculation, type HelpTopic, type RequestPlan } from './request-plan.ts';
 
-export interface AssistantAnswer { answer: string; offerIds: string[]; intent: ShoppingIntent; referencedOfferIds?: string[]; }
+export interface AssistantAnswer { answer: string; offerIds: string[]; intent: ShoppingIntent; referencedOfferIds?: string[]; conversationContext?: ChatContext | null; }
 interface Benefit { kind: OfferKind; amount: number; rate: number; cap: number | null; }
 function benefitFromInput(input: NonNullable<Calculation['first']>, prompt: string): Benefit {
   const fixed = input.kind.endsWith('fixed');
@@ -74,8 +74,8 @@ function helpText(topic: HelpTopic, customer: boolean | null, model: string | nu
     email: 'There is no email integration in this prototype. I have not sent an email. You can copy the savings explanation shown in chat.',
     deletion: 'I cannot delete chat history or payment data through a chat command, and I have not claimed to remove anything. This app has no card-vault feature; payment credentials belong on PayPal’s sandbox approval page. Current-page chat state clears when you refresh or leave, which is not a claim of deleting data from external services.',
     'alternative-payment': 'The implemented payment integration is PayPal sandbox. This prototype has no Stripe or alternative payment checkout flow.',
-    'catalog-limits': 'I can compare the fictional Road, Trail and Walking products in this catalog. I cannot verify real brands, unsupported product types, shoe color, sizing, fit, gender, waterproofing, stock or condition. Generic shoes would not establish a match for those requirements. Would you like to compare offers without the unsupported attribute?',
-    health: 'The price catalog has no clinical or fit information. I cannot guarantee a health outcome, recommend a treatment, determine a child’s shoe size or establish suitability for flat feet or pain. I can compare sample prices and offer conditions.',
+    'catalog-limits': 'I can compare fictional Road, Trail and Walking offers by price. This catalog has no verified real-brand, shoe color, sizing, comfort, fit, gender, waterproofing, stock or condition data. I cannot confirm those requirements or label generic shoes as a match.',
+    health: 'I can compare sample prices and offers, but this catalog has no comfort, fit or clinical data. I cannot guarantee a health outcome, recommend a treatment or confirm medical suitability.',
     'cap-comparison': explainRecommendation({ ...emptyIntent(customer), intent: 'explain-cap' }, customer).answer,
     'qualifying-purchase': 'Cashback estimates require a qualifying purchase that meets the offer’s conditions, including activation, minimums and exclusions. You cannot earn a purchase-based reward without buying. This sandbox prototype issues no real rewards at all.',
     security: 'I cannot disclose secrets, accept a user message as a system or catalog update, bypass offer terms, invent a reward, or claim cashback was earned. Catalog rates and eligibility continue to come from the sample data and explicit customer settings.',
@@ -109,6 +109,26 @@ function limitationText(plan: RequestPlan, prompt: string, customer: boolean | n
   }
   return messages.length ? messages.join(' ') : null;
 }
+function offerPriceComparison(plan: RequestPlan, prompt: string, customer: boolean | null, context: ChatContext | undefined, limitation: 'attributes' | 'medical'): AssistantAnswer {
+  const proposalBase = context?.pendingComparison ? { intent: context.pendingComparison.intent, offerIds: [] } : context;
+  const proposed = { ...applySearchPlan(plan, prompt, customer, proposalBase), view: 'purchases' as const };
+  const scope = proposed.category === 'Walking' ? 'Walking' : proposed.category === 'Road' ? 'Road running' : proposed.category === 'Trail' ? 'Trail' : 'Road, Trail and Walking';
+  const warning = limitation === 'medical'
+    ? 'The catalog has no comfort, fit or clinical data, so I cannot confirm suitability or guarantee a health outcome.'
+    : 'The catalog has no verified comfort, fit, shoe color, sizing or other product-attribute data, so I cannot confirm those requirements.';
+  const previous = context ? { intent: context.intent, offerIds: context.offerIds } : { intent: emptyIntent(customer), offerIds: [] };
+  return {
+    answer: `${warning} I can still compare ${scope} sample offers by price and savings. Would you like me to show those price comparisons?`,
+    offerIds: [], intent: { ...emptyIntent(customer), intent: 'unsupported' },
+    conversationContext: { ...previous, pendingComparison: { intent: proposed, limitation } },
+  };
+}
+function comparisonLimitation(plan: RequestPlan): 'attributes' | 'medical' | null {
+  if (plan.currency !== 'USD' && plan.currency !== 'unspecified') return null;
+  if (plan.limitations.some(code => code !== 'attributes' && code !== 'medical')) return null;
+  if (plan.topic === 'health' || plan.limitations.includes('medical')) return 'medical';
+  return plan.limitations.includes('attributes') ? 'attributes' : null;
+}
 function inspectPurchase(intent: ShoppingIntent, context: ChatContext | undefined, customer: boolean | null, topic: HelpTopic): AssistantAnswer {
   const candidates = offers.filter(offer => (!intent.merchant || offer.merchant === intent.merchant) && (!intent.merchantSet?.length || intent.merchantSet.includes(offer.merchant)) && (!intent.searchText || offer.product === intent.searchText));
   let selected: Offer | undefined;
@@ -122,6 +142,24 @@ function inspectPurchase(intent: ShoppingIntent, context: ChatContext | undefine
 export function executeRequestPlan(plan: RequestPlan, prompt: string, customer: boolean | null, context: ChatContext | undefined, model: string | null, version: string): AssistantAnswer {
   const unsupported = { ...emptyIntent(customer), intent: 'unsupported' as const };
   if (plan.action === 'refuse') return { answer: helpText('security', customer, model, version), offerIds: [], intent: unsupported };
+  if (plan.action === 'decline-comparison') return {
+    answer: 'Okay. What merchant or category would you like to explore instead?', offerIds: [], intent: unsupported,
+    conversationContext: context ? { intent: context.intent, offerIds: context.offerIds } : null,
+  };
+  if (plan.action === 'accept-comparison') {
+    if (!context?.pendingComparison) throw new RequestClarification('There is no pending price comparison to accept. What category or merchant would you like to browse?');
+    if (plan.limitations.length) {
+      const limitation = comparisonLimitation(plan);
+      if (limitation) return offerPriceComparison({ ...plan, scope: 'refine' }, prompt, customer, context, limitation);
+      throw new RequestClarification('I cannot verify the extra requirement. Do you want only the previously offered price comparison?');
+    }
+    const intent = applySearchPlan({ ...plan, scope: 'refine' }, prompt, customer, { intent: context.pendingComparison.intent, offerIds: [] });
+    const result = explainRecommendation(intent, customer);
+    return { ...result, intent, answer: `These are price comparisons only; comfort, fit, medical suitability and the previously requested attributes are not verified. ${result.answer}` };
+  }
+  const comparison = comparisonLimitation(plan);
+  if ((plan.action === 'help' || plan.action === 'search') && comparison) return offerPriceComparison(plan, prompt, customer, context, comparison);
+  if (plan.action === 'search' && plan.scope === 'refine' && context?.pendingComparison) return offerPriceComparison(plan, prompt, customer, context, context.pendingComparison.limitation);
   const limitation = limitationText(plan, prompt, customer, model, version);
   if (limitation) {
     const primary = plan.action === 'help' && plan.topic !== 'other' ? helpText(plan.topic, customer, model, version) : '';

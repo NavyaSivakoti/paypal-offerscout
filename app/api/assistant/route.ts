@@ -5,6 +5,7 @@ import { resolveCustomerStatus, resolvePlannedCustomerStatus } from '../../../li
 import { AppError, readInput, errorResponse, json } from '../../../lib/server/http';
 import { answerGuide, chatContextSchema, resolveSearch } from '../../../lib/chat';
 import { executeRequestPlan } from '../../../lib/assistant-execution';
+import { contextForAnswer } from '../../../lib/conversation';
 import { emptyIntent } from '../../../lib/search-state';
 import { RequestClarification } from '../../../lib/request-plan';
 import { planRequest, PLANNER_VERSION, PlannerValidationError } from '../../../lib/server/request-planner';
@@ -28,10 +29,10 @@ export async function POST(request: Request): Promise<Response> {
     if (plan.action === 'refuse' || plan.limitations.includes('merchant-status')) customer = body.newCustomer;
     try {
       const result = executeRequestPlan(plan, body.prompt, customer, context, model, PLANNER_VERSION);
-      return json({ ...result, newCustomer: customer, mode: 'live', model, promptVersion: PLANNER_VERSION, responseSource: 'ai', planAction: plan.action, interpretedRequest: { action: plan.action, scope: plan.scope, topic: plan.topic, limitations: plan.limitations, currency: plan.currency, filters: plan.filters }, appliedChanges: plan.updates.map(update => ({ field: update.field, operation: update.operation })) });
+      return json({ ...result, conversationContext: contextForAnswer(result, context) ?? null, newCustomer: customer, mode: 'live', model, promptVersion: PLANNER_VERSION, responseSource: 'ai', planAction: plan.action, interpretedRequest: { action: plan.action, scope: plan.scope, topic: plan.topic, limitations: plan.limitations, currency: plan.currency, filters: plan.filters }, appliedChanges: plan.updates.map(update => ({ field: update.field, operation: update.operation })) });
     } catch (error) {
       if (!(error instanceof RequestClarification)) throw error;
-      return json({ answer: error.message, offerIds: [], intent: { ...emptyIntent(customer), intent: 'unsupported' }, newCustomer: customer, mode: 'live', model, promptVersion: PLANNER_VERSION, responseSource: 'ai', planAction: 'clarify', appliedChanges: [], interpretedRequest: { action: plan.action, scope: plan.scope, topic: plan.topic, limitations: plan.limitations, currency: plan.currency, filters: plan.filters } });
+      return json({ answer: error.message, offerIds: [], intent: { ...emptyIntent(customer), intent: 'unsupported' }, conversationContext: context ?? null, newCustomer: customer, mode: 'live', model, promptVersion: PLANNER_VERSION, responseSource: 'ai', planAction: 'clarify', appliedChanges: [], interpretedRequest: { action: plan.action, scope: plan.scope, topic: plan.topic, limitations: plan.limitations, currency: plan.currency, filters: plan.filters } });
     }
   } catch (error) {
     if (error instanceof PlannerValidationError) return Response.json({ error: error.message, errorCode: 'PLAN_VALIDATION', invalidFields: error.fields }, { status: 502, headers: { 'Cache-Control': 'no-store' } });

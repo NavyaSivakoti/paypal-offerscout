@@ -25,7 +25,7 @@ export const calculationSchema = z.object({
   first: benefitSchema.nullable(), second: benefitSchema.nullable(),
 }).strict();
 export const requestPlanSchema = z.object({
-  action: z.enum(['search', 'inspect', 'help', 'calculate', 'clarify', 'refuse']),
+  action: z.enum(['search', 'inspect', 'help', 'calculate', 'clarify', 'refuse', 'accept-comparison', 'decline-comparison']),
   scope: z.enum(['new', 'refine']),
   updates: z.array(z.object({ field: z.enum(filterFields), operation: z.enum(['set', 'clear']), evidence: z.string().min(1).max(1000) }).strict()).max(filterFields.length),
   filters: rawFiltersSchema,
@@ -126,7 +126,7 @@ const stringValue: JsonSchema = { type: ['string', 'null'], maxLength: 100, desc
 const object = (properties: Record<string, JsonSchema>): JsonSchema => ({ type: 'object', additionalProperties: false, properties, required: Object.keys(properties) });
 const benefitJson = object({ kind: enumeration(OFFER_KINDS), amount: stringValue, rate: stringValue, cap: stringValue });
 export const requestPlanJsonSchema = object({
-  action: enumeration(['search', 'inspect', 'help', 'calculate', 'clarify', 'refuse']), scope: enumeration(['new', 'refine']),
+  action: enumeration(['search', 'inspect', 'help', 'calculate', 'clarify', 'refuse', 'accept-comparison', 'decline-comparison']), scope: enumeration(['new', 'refine']),
   updates: { type: 'array', maxItems: filterFields.length, items: object({ field: enumeration(filterFields), operation: enumeration(['set', 'clear']), evidence: { type: 'string', maxLength: 1000 } }) },
   filters: object({
     merchants: { anyOf: [{ type: 'array', items: enumeration(merchantNames), minItems: 1, maxItems: 5 }, { type: 'null' }], description: 'Only exact merchant names stated in CURRENT message. Null for their/there/same merchant: scope=refine retains previous merchant. Unknown real brands require unknown-merchant limitation, never substitute.' },
