@@ -41,7 +41,7 @@ export function evaluate(offer: Offer, newCustomer: boolean | null, now = '2026-
 }
 export const productNames = ['Cloudstep Road Runner', 'Ridgeline Trail Shoe', 'Everyday Walking Shoe', 'Tempo Road Runner'] as const;
 const products = productNames;
-const colors = ['#dce8c9', '#ead9cc', '#d7e3f0', '#eee2c9', '#e2d9ee', '#d6e8e2'];
+const colors = ['#d5e7ff', '#e5efff', '#cce5ff', '#eaf3ff', '#dbe5ff', '#d6edff'];
 // Preserve original IDs and amounts: existing sandbox checkout bindings remain valid.
 export const demoOffers: Offer[] = merchantNames.slice(0, 3).flatMap((merchant, m) => products.map((product, p) => ({
   id: `offer-${m}-${p}`, merchant, product, category: p === 1 ? 'Trail' : p === 2 ? 'Walking' : 'Road', price: [11000, 10800, 9900][m] + p * 800, shipping: m === 2 ? 700 : 0, rate: [15, 10, 8][m], cap: m === 0 ? 500 : null, minimum: p === 3 ? 15000 : 0, newCustomerOnly: m === 2 && p === 1, expires: '2026-11-30', color: colors[m],
