@@ -1,49 +1,55 @@
 # OfferScout
 
-**Your AI guide to cashback offers.**
-
-Status: working submission draft. Live AI acceptance checks and actual PayPal sandbox order creation are verified. An interactive buyer run returned a confirmed $106 sandbox capture. Remaining submission gates are tracked in SUBMISSION_READINESS.md.
+**Your AI guide to cashback and discount offers.**
 
 ## Inspiration
 
-A shopper can know what they want to buy and still miss a relevant cashback offer. Once they find offers, the largest advertised percentage can hide a reward cap, a minimum purchase, or an eligibility restriction. OfferScout explores how an assistant can make those conditions easier to understand before checkout.
+An attractive cashback percentage does not tell a shopper what they will actually save. Caps, minimums, exclusions and shipping can change the result. OfferScout makes those conditions visible before a shopper approves a payment.
 
 ## What it does
 
-OfferScout opens with Home and a Savings directory of fictional merchant cashback offers. A floating assistant is available on each screen: shoppers can ask about a merchant, compare cashback rates, or describe a sample purchase in natural language. Merchant cards show rates and conditions first; purchase examples and checkout live inside the details dialog. Shoppers can filter by merchant and category, save merchants during the current page session, or ask a budget-specific question to compare payment due today and estimated cost after rewards.
+OfferScout combines a searchable Savings directory with a floating AI assistant. Describe a footwear purchase, browse fictional merchants, narrow a budget, compare offer types, or ask about a selected offer's terms. The prototype contains 150 fictional merchants and 600 sample offers across percentage cashback, fixed-dollar cashback, percentage discounts and fixed-dollar discounts.
 
-A $110 shoe with 15% cashback capped at $5 has an estimated cost of $105. A $108 shoe with 10% uncapped cashback has an estimated cost of $97.20. The payment remains $108; estimated rewards are not deducted at checkout.
+The assistant shows payment due before tax, instant discounts, estimated cashback and estimated cost after rewards separately. A $110 example with 15% cashback capped at $5 costs an estimated $105. A $108 example with 10% uncapped cashback costs an estimated $97.20. The lower advertised rate wins that comparison.
 
-The implemented checkout creates an order with the PayPal sandbox, asks the buyer to approve it, and validates a completed capture before displaying a test-payment receipt. Every fictional merchant card uses the same configured demo seller. It does not purchase from real retailers or issue cashback.
+A buyer can open a sample purchase and explicitly approve a PayPal sandbox checkout. The server creates the order, captures the approved payment and validates the amount, currency and completed status before showing a receipt. All fictional merchants use one configured sandbox seller. No real merchant purchase, goods or reward payout occurs.
 
 ## How we built it
 
-The application uses TypeScript, React, Vinext, and Zod. In live mode, the OpenAI Responses API converts a shopping request into a strict, validated intent schema. The verified configuration is `gpt-4o-mini` with `offerscout-intent-v4`. Deterministic code selects matching offers, checks the sample conditions, grounds customer status in explicit declarations or the user setting, and calculates amounts in integer cents. The model cannot establish customer eligibility, choose a charge amount, or approve a payment.
+TypeScript, React and Vinext power the app. Zod validates API input and model plans. The OpenAI Responses API uses strict structured outputs to interpret shopping requests, help questions and follow-up changes. The configured model is gpt-6.1-sol; current planner source version is offerscout-plan-v20. Bounded context contains the previous search filters, catalog IDs and any pending comparison, rather than raw conversation history.
 
-The server-side PayPal Orders integration uses only sandbox endpoints, derives amounts from the catalog, binds checkout to a signed HttpOnly cookie, and validates order identity, currency, amount, and completed capture status. Provider failures appear as errors, rather than silently becoming successful payments or demo answers.
+Deterministic code matches catalog offers, checks eligibility and calculates money in integer cents. The model cannot choose a charge amount, establish verified eligibility or execute payment. The PayPal Orders API integration uses sandbox endpoints, server-derived totals, a signed HttpOnly checkout binding and idempotent capture requests. A failed or pending capture is not displayed as completed.
 
-## Challenges and decisions
+## Challenges
 
-We separated intent interpretation from money calculations and treated unknown eligibility conservatively. Shipping is charged today but excluded from estimated cashback and merchandise minimums. Unknown new-customer status produces no estimated reward for restricted offers. The interface distinguishes the actual payment from hypothetical rewards.
+We keep today's payment separate from deferred estimated cashback, preserve budgets across follow-ups and require explicit consent before showing price-only comparisons when unsupported product attributes were requested. Unknown new-customer eligibility receives no benefit from restricted offers. The catalog uses a frozen reference date, so the assistant discloses that it cannot verify seasonal or future-date deals instead of treating old offers as valid for them.
 
-## Validation so far
+## What we are proud of
 
-147 automated checks pass, including hand-labeled calculations, merchant/product matching, customer-status handling, four benefit kinds, exact-dollar filters, all 600 catalog order-body amounts, amount tampering, pending captures, signed checkout bindings, and redirect restrictions. Provider responses in unit tests are mocked. Separately, 14 bounded hosted checks passed against the actual OpenAI service on the expanded catalog with gpt-4o-mini and offerscout-intent-v6. Three actual PayPal sandbox orders were created for the new fixed cashback and discount kinds. No new-kind buyer approval/capture was performed. User-operated runs of the original cashback examples produced completed $106 and $108 capture receipts. These screenshots establish the observed happy path; seller dashboard reconciliation and real cancellation/failure paths are not independently verified. The evaluation is a development set, not a general accuracy estimate.
+An end-to-end comparison-to-payment prototype with transparent sample terms, inspectable AI plans and independently computed payment amounts. The shopper remains in control of checkout.
 
-## Scope and limitations
+## What we learned
 
-The catalog and offer terms are synthetic and clearly labeled. Estimates use a fixed, visible October 17, 2026 reference date; tax is excluded and activation is assumed. The AI interprets each question independently; prior chat history is not model context, and arbitrary real-world offer extraction is not implemented. There is no live PayPal cashback feed, reward payout, fulfillment, or refund handling. OfferScout is an independent prototype, not an official PayPal product.
+Useful shopping assistance requires explicit limits as much as ranking. A rate, a payment amount and an estimated reward are different facts. A historical offer snapshot cannot establish future availability.
 
-## Next development steps
+## Validation
 
-Validate the live integrations, collect shopper feedback, and explore authorized merchant offer feeds. Future support for personalized eligibility and additional exclusions would require explicit data sources and new evaluation cases.
+270 automated tests pass against the current source, with mocked provider responses. TypeScript strict checks and changed-file lint pass. Historical hosted AI evaluations and user-operated $106/$108 sandbox captures are documented separately; those runs are not a full live evaluation of the current planner. The final video must show an actual approved capture from the running app before claiming that observed result. Evaluation fixtures are synthetic development cases, not a general model-accuracy benchmark.
 
-## Publication gates
+## Limitations and next steps
 
-Before copying to Devpost: verify live behavior, record the actual configured model and prompt version, publish the source with its MIT license, provide working judge access, and attach the public YouTube video. Do not include API secrets in the submission.
+All merchants, products and offer terms are fictional. The catalog is evaluated at October 17, 2026 for reproducibility; it is not a live PayPal feed or a forecast of Black Friday deals. Activation is assumed, tax is excluded and customer status is self-declared. No fulfillment, refunds, real reward issuance or durable order history is implemented. Saved merchants and chat state last only for the current page visit. OfferScout is an independent hackathon prototype, not an official PayPal product.
 
-### Expanded test catalog
+Future work: authorized live offer data, merchant-specific eligibility, broader product data and feedback from real shoppers. These are future integrations, not demonstrated capabilities.
 
-The current prototype has 150 fictional footwear merchants and 600 sample offers across percentage/fixed cashback and percentage/fixed instant discounts. This is synthetic test scale, not real merchants onboarded. Eligibility and money remain deterministic; instant discounts affect the sandbox payment while deferred cashback stays an estimate. Research sources and limits are documented in OFFER_DATA_RESEARCH.md. The previous 12-case live evaluation used the original catalog and v4 prompt; source now uses v6.
+## Built with
 
-The confirmed receipt separately displays simulated cashback, applied instant discount, and estimated effective cost. Only the payment capture is confirmed by PayPal; the cashback estimate comes from fictional catalog terms and saved self-declared eligibility.
+PayPal Sandbox Orders API, OpenAI Responses API (gpt-6.1-sol), TypeScript, React, Vinext, Zod, Tailwind CSS, ChatGPT Sites. AI assistance was used during development and QA. No optional sponsor integration is claimed.
+
+## Submission links and final gates
+
+- Source: https://github.com/NavyaSivakoti/paypal-offerscout — MIT license.
+- Hosted app: https://offerlens.lakshminavya104.chatgpt.site — currently owner-private; do not describe this URL as judge-accessible yet.
+- Setup instructions: README.md. Entrants/judges supply their own sandbox and AI credentials for local live integrations; offline demo mode is separately labeled.
+- Add the actual public YouTube video URL in Devpost after recording; do not submit a placeholder.
+- Verify entrant eligibility, project fields, judge access, actual configured model and successful submission confirmation before submitting.

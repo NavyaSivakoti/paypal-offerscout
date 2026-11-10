@@ -118,3 +118,8 @@ TypeScript, changed-file ESLint, production build and source whitespace checks p
 The current 100-case retest summary is recorded in `CHATBOT_AUDIT_SUMMARY.json`. It distinguishes AI search/explanation calls from deterministic guide/calculation answers. Money and eligibility stay in code. No payment or reward was created during the chatbot audit. Fresh buyer approval/capture for the receipt fields remains a separate manual check.
 
 Final v9 hosted rerun: 100/100 HTTP 200, 100/100 structured cases and 100/100 assistant-reviewed primary expectations; 156/156 independently checked quoted-money assertions passed. The run comprised 50 actual AI search/explanation calls and 50 deterministic guide/calculation answers. Eight additional hosted HTTP checks passed, including context validation, cross-origin rejection, preserved eligibility, guide labelling and configuration. The same 100 prompts informed development; this is not a general accuracy estimate.
+
+
+## November 10, 2026 — final source preparation
+
+270 automated tests passed, including five synthetic purchase-timing limitation regressions. Strict TypeScript, changed-file ESLint and production build passed. Planner source is offerscout-plan-v20. The date limitation blocks recommended cards when the semantic plan identifies an unsupported purchase date, including the pending-comparison path. This does not implement real-time or future-date offer feeds. The Devpost draft and demo script were updated to the current architecture and explicitly scoped comparison. The hosted browser showed the owner sign-in gate; local preview navigation timed out. These checks do not establish a new live buyer capture or final desktop/mobile walkthrough.

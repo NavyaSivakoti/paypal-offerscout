@@ -1,5 +1,7 @@
 # OfferScout submission readiness
 
+**November 10 update:** See [today’s actionable final checklist](FINAL_SUBMISSION_CHECKLIST.md). Current source passes 270 automated tests, strict TypeScript, changed-file lint and a production build. Current planner is v20; historical live-audit results below do not certify it. Hosted access remains owner-private. A fresh buyer capture, final browser walkthrough, public video and Devpost submission are still required.
+
 Reviewed October 18, 2026 against https://paypalaihackathon.devpost.com/rules and https://paypalaihackathon.devpost.com/resources. This is an engineering checklist, not organizer approval or a prediction of a prize.
 
 Integration evidence is historical; chatbot evidence updated November 4, 2026; see VERIFICATION.md and LIVE_ACCEPTANCE_RESULTS.json.

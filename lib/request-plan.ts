@@ -4,7 +4,7 @@ import { OFFER_FILTERS, OFFER_KINDS, productNames } from './offers.ts';
 
 export const filterFields = ['merchants', 'merchantPrefix', 'category', 'product', 'maximumPayment', 'minimumPayment', 'maximumEffective', 'offerType', 'benefit', 'rate', 'rateComparison', 'freeShipping', 'newCustomerOffersOnly', 'sort', 'view'] as const;
 export const helpTopics = ['welcome', 'categories', 'offer-types', 'catalog-source', 'identity', 'fees', 'accounts', 'saved', 'privacy', 'memory', 'checkout', 'autonomous-payment', 'payment-status', 'guest-checkout', 'earned-rewards', 'fulfillment', 'returns', 'password', 'stacking', 'activation', 'minimum', 'expiry', 'exclusions', 'tax', 'shipping', 'eligibility', 'model', 'email', 'deletion', 'alternative-payment', 'catalog-limits', 'health', 'cap-comparison', 'qualifying-purchase', 'security', 'other'] as const;
-export const limitationCodes = ['currency', 'precision', 'unknown-merchant', 'product', 'attributes', 'location', 'delivery', 'medical', 'merchant-status', 'multi-item', 'reference', 'action', 'secrets', 'fabrication', 'stacking', 'other'] as const;
+export const limitationCodes = ['currency', 'precision', 'unknown-merchant', 'product', 'attributes', 'location', 'delivery', 'purchase-date', 'medical', 'merchant-status', 'multi-item', 'reference', 'action', 'secrets', 'fabrication', 'stacking', 'other'] as const;
 const rawAmount = z.string().min(1).max(100).nullable();
 export const rawFiltersSchema = z.object({
   merchants: z.array(z.enum(merchantNames)).min(1).max(5).nullable(),

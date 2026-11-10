@@ -96,6 +96,7 @@ function limitationText(plan: RequestPlan, prompt: string, customer: boolean | n
       case 'precision': add('Please give the budget to at most two decimal places. I will not round a spending ceiling up; choose an explicit amount in cents.'); break;
       case 'merchant-status': add('This prototype uses one self-declared customer status at a time. If you are new at one merchant and returning at another, compare them separately with the appropriate setting. I have not applied a global new-customer status to both.'); break;
       case 'location': add('The sample catalog has no country eligibility or international shipping data. Prices are in US dollars; I cannot confirm UK, Canada or other regional eligibility.'); break;
+      case 'purchase-date': add(`I cannot confirm offers or sale prices for that purchase date. These fictional offers are evaluated only as of ${DEMO_DATE}; an offer may expire before your planned purchase. For a sample comparison at that reference date, ask for a category and budget without a future-date condition. No live or seasonal deals are verified.`); break;
       case 'delivery': add('There are no delivery dates or fulfillment data in this sandbox prototype, so I cannot promise arrival by a particular day.'); break;
       case 'reference': add('Which sample purchase do you mean? Tell me the merchant and product, or open one offer, so I can use its exact conditions.'); break;
       case 'multi-item': add('There is no multi-item cart. Each sandbox checkout covers one sample purchase and one offer. I have not added anything to a cart.'); break;
@@ -142,6 +143,7 @@ function inspectPurchase(intent: ShoppingIntent, context: ChatContext | undefine
 export function executeRequestPlan(plan: RequestPlan, prompt: string, customer: boolean | null, context: ChatContext | undefined, model: string | null, version: string): AssistantAnswer {
   const unsupported = { ...emptyIntent(customer), intent: 'unsupported' as const };
   if (plan.action === 'refuse') return { answer: helpText('security', customer, model, version), offerIds: [], intent: unsupported };
+  if (plan.limitations.includes('purchase-date')) return { answer: limitationText(plan, prompt, customer, model, version)!, offerIds: [], intent: unsupported, conversationContext: context ? { intent: context.intent, offerIds: context.offerIds } : null };
   if (plan.action === 'decline-comparison') return {
     answer: 'Okay. What merchant or category would you like to explore instead?', offerIds: [], intent: unsupported,
     conversationContext: context ? { intent: context.intent, offerIds: context.offerIds } : null,
