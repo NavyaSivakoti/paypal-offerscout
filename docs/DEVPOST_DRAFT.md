@@ -16,13 +16,13 @@ A buyer can open a sample purchase and explicitly approve a PayPal sandbox check
 
 ## How we built it
 
-TypeScript, React and Vinext power the app. Zod validates API input and model plans. The OpenAI Responses API uses strict structured outputs to interpret shopping requests, help questions and follow-up changes. The configured model is gpt-6.1-sol; current planner source version is offerscout-plan-v20. Bounded context contains the previous search filters, catalog IDs and any pending comparison, rather than raw conversation history.
+TypeScript, React and Vinext power the app. Zod validates API input and model plans. The OpenAI Responses API uses strict structured outputs to interpret shopping requests, help questions and follow-up changes. The configured model is gpt-6.1-sol; current planner source version is offerscout-plan-v21. Bounded context contains the previous search filters, catalog IDs and any pending comparison, rather than raw conversation history.
 
 Deterministic code matches catalog offers, checks eligibility and calculates money in integer cents. The model cannot choose a charge amount, establish verified eligibility or execute payment. The PayPal Orders API integration uses sandbox endpoints, server-derived totals, a signed HttpOnly checkout binding and idempotent capture requests. A failed or pending capture is not displayed as completed.
 
 ## Challenges
 
-We keep today's payment separate from deferred estimated cashback, preserve budgets across follow-ups and require explicit consent before showing price-only comparisons when unsupported product attributes were requested. Unknown new-customer eligibility receives no benefit from restricted offers. The catalog uses a frozen reference date, so the assistant discloses that it cannot verify seasonal or future-date deals instead of treating old offers as valid for them.
+We keep today's payment separate from deferred estimated cashback, preserve budgets across follow-ups and require explicit consent before showing price-only comparisons when unsupported product attributes were requested. Unknown new-customer eligibility receives no benefit from restricted offers. The catalog uses a frozen reference date, so the assistant discloses that it cannot verify seasonal or future-date deals and offers reference-date sample comparisons after a budget reply or consent, instead of treating old offers as valid for the future purchase.
 
 ## What we are proud of
 
@@ -34,7 +34,7 @@ Useful shopping assistance requires explicit limits as much as ranking. A rate, 
 
 ## Validation
 
-270 automated tests pass against the current source, with mocked provider responses. TypeScript strict checks and changed-file lint pass. Historical hosted AI evaluations and user-operated $106/$108 sandbox captures are documented separately; those runs are not a full live evaluation of the current planner. The final video must show an actual approved capture from the running app before claiming that observed result. Evaluation fixtures are synthetic development cases, not a general model-accuracy benchmark.
+277 automated tests pass against the current source, with mocked provider responses. TypeScript strict checks and changed-file lint pass. Historical hosted AI evaluations and user-operated $106/$108 sandbox captures are documented separately; those runs are not a full live evaluation of the current planner. The final video must show an actual approved capture from the running app before claiming that observed result. Evaluation fixtures are synthetic development cases, not a general model-accuracy benchmark.
 
 ## Limitations and next steps
 

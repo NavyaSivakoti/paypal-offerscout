@@ -123,3 +123,8 @@ Final v9 hosted rerun: 100/100 HTTP 200, 100/100 structured cases and 100/100 as
 ## November 10, 2026 — final source preparation
 
 270 automated tests passed, including five synthetic purchase-timing limitation regressions. Strict TypeScript, changed-file ESLint and production build passed. Planner source is offerscout-plan-v20. The date limitation blocks recommended cards when the semantic plan identifies an unsupported purchase date, including the pending-comparison path. This does not implement real-time or future-date offer feeds. The Devpost draft and demo script were updated to the current architecture and explicitly scoped comparison. The hosted browser showed the owner sign-in gate; local preview navigation timed out. These checks do not establish a new live buyer capture or final desktop/mobile walkthrough.
+
+
+## November 10, 2026 — helpful purchase-timing handoff (v21)
+
+277 automated tests pass, including seven new synthetic handoff cases. Strict TypeScript and changed-file lint pass. Unsupported timing now retains catalog filters and offers a reference-date sample comparison, asking for a budget when absent. A budget reply or explicit acceptance displays clearly warned sample options. Renewed timing requirements and compound unsupported requirements do not become seasonal-deal recommendations. No raw personal conversation was added. Live v21 behavior and a fresh buyer capture remain unverified by these mocked tests.

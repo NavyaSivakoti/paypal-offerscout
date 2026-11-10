@@ -110,7 +110,7 @@ function limitationText(plan: RequestPlan, prompt: string, customer: boolean | n
   }
   return messages.length ? messages.join(' ') : null;
 }
-function offerPriceComparison(plan: RequestPlan, prompt: string, customer: boolean | null, context: ChatContext | undefined, limitation: 'attributes' | 'medical'): AssistantAnswer {
+function offerPriceComparison(plan: RequestPlan, prompt: string, customer: boolean | null, context: ChatContext | undefined, limitation: 'attributes' | 'medical' | 'purchase-date'): AssistantAnswer {
   const proposalBase = context?.pendingComparison ? { intent: context.pendingComparison.intent, offerIds: [] } : context;
   const proposed = { ...applySearchPlan(plan, prompt, customer, proposalBase), view: 'purchases' as const };
   const scope = proposed.category === 'Walking' ? 'Walking' : proposed.category === 'Road' ? 'Road running' : proposed.category === 'Trail' ? 'Trail' : 'Road, Trail and Walking';
@@ -119,7 +119,9 @@ function offerPriceComparison(plan: RequestPlan, prompt: string, customer: boole
     : 'The catalog has no verified comfort, fit, shoe color, sizing or other product-attribute data, so I cannot confirm those requirements.';
   const previous = context ? { intent: context.intent, offerIds: context.offerIds } : { intent: emptyIntent(customer), offerIds: [] };
   return {
-    answer: `${warning} I can still compare ${scope} sample offers by price and savings. Would you like me to show those price comparisons?`,
+    answer: limitation === 'purchase-date'
+      ? `I can suggest ${scope} shoes with discounts or cashback from our sample catalog, but I cannot confirm Black Friday or other future sale availability or prices. These are fictional offers evaluated as of ${DEMO_DATE}, not discounts verified as available now. ${proposed.maximumPayableCents !== null ? 'Would you like me to show sample comparisons within your budget?' : 'For a sample comparison, what is your budget? Or say “show sample options” to browse without a budget.'}`
+      : `${warning} I can still compare ${scope} sample offers by price and savings. Would you like me to show those price comparisons?`,
     offerIds: [], intent: { ...emptyIntent(customer), intent: 'unsupported' },
     conversationContext: { ...previous, pendingComparison: { intent: proposed, limitation } },
   };
@@ -143,12 +145,15 @@ function inspectPurchase(intent: ShoppingIntent, context: ChatContext | undefine
 export function executeRequestPlan(plan: RequestPlan, prompt: string, customer: boolean | null, context: ChatContext | undefined, model: string | null, version: string): AssistantAnswer {
   const unsupported = { ...emptyIntent(customer), intent: 'unsupported' as const };
   if (plan.action === 'refuse') return { answer: helpText('security', customer, model, version), offerIds: [], intent: unsupported };
-  if (plan.limitations.includes('purchase-date')) return { answer: limitationText(plan, prompt, customer, model, version)!, offerIds: [], intent: unsupported, conversationContext: context ? { intent: context.intent, offerIds: context.offerIds } : null };
+  if (plan.limitations.includes('purchase-date')) {
+    if (plan.limitations.length === 1 && (plan.currency === 'USD' || plan.currency === 'unspecified')) return offerPriceComparison(plan, prompt, customer, context, 'purchase-date');
+    return { answer: limitationText(plan, prompt, customer, model, version)!, offerIds: [], intent: unsupported, conversationContext: context ? { intent: context.intent, offerIds: context.offerIds } : null };
+  }
   if (plan.action === 'decline-comparison') return {
     answer: 'Okay. What merchant or category would you like to explore instead?', offerIds: [], intent: unsupported,
     conversationContext: context ? { intent: context.intent, offerIds: context.offerIds } : null,
   };
-  if (plan.action === 'accept-comparison') {
+  if (plan.action === 'accept-comparison' || plan.action === 'search' && plan.scope === 'refine' && context?.pendingComparison?.limitation === 'purchase-date') {
     if (!context?.pendingComparison) throw new RequestClarification('There is no pending price comparison to accept. What category or merchant would you like to browse?');
     if (plan.limitations.length) {
       const limitation = comparisonLimitation(plan);
@@ -157,7 +162,10 @@ export function executeRequestPlan(plan: RequestPlan, prompt: string, customer: 
     }
     const intent = applySearchPlan({ ...plan, scope: 'refine' }, prompt, customer, { intent: context.pendingComparison.intent, offerIds: [] });
     const result = explainRecommendation(intent, customer);
-    return { ...result, intent, answer: `These are price comparisons only; comfort, fit, medical suitability and the previously requested attributes are not verified. ${result.answer}` };
+    const warning = context.pendingComparison.limitation === 'purchase-date'
+      ? `Sample comparisons as of ${DEMO_DATE} only; these are not confirmed current discounts or Black Friday deals, and future availability is unverified.`
+      : 'These are price comparisons only; comfort, fit, medical suitability and the previously requested attributes are not verified.';
+    return { ...result, intent, answer: `${warning} ${result.answer}` };
   }
   const comparison = comparisonLimitation(plan);
   if ((plan.action === 'help' || plan.action === 'search') && comparison) return offerPriceComparison(plan, prompt, customer, context, comparison);

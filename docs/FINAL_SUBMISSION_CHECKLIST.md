@@ -5,7 +5,7 @@
 - Public MIT-licensed repository with setup instructions.
 - Updated submission copy: DEVPOST_DRAFT.md.
 - Target 150-second recording script: DEMO_SCRIPT.md.
-- Current source: 270 passing automated tests, strict TypeScript, changed-file lint and production build.
+- Current source: 277 passing automated tests, strict TypeScript, changed-file lint and production build.
 - Fictional-data, fixed-reference-date, one-sandbox-seller and simulated-reward disclosures.
 - Purchase-date limitation: future/seasonal availability is not inferred from the frozen catalog.
 
@@ -20,4 +20,4 @@
 
 ## Verification limits
 
-The 270 tests mock provider responses. Historical live AI audits and $106/$108 sandbox captures are separate evidence, not verification of a new buyer capture on this build. The hosted URL showed a sign-in gate to the browser used for QA. A local browser preview navigation timed out, so a final desktop/mobile browser walkthrough remains unverified. No claim of a prize or final organizer acceptance is made.
+The 277 tests mock provider responses. Historical live AI audits and $106/$108 sandbox captures are separate evidence, not verification of a new buyer capture on this build. The hosted URL showed a sign-in gate to the browser used for QA. A local browser preview navigation timed out, so a final desktop/mobile browser walkthrough remains unverified. No claim of a prize or final organizer acceptance is made.

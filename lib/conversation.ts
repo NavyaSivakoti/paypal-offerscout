@@ -4,7 +4,7 @@ import { intentSchema, type ShoppingIntent } from './intent.ts';
 // Only catalog constraints and a limitation code are retained, never health history or payment data.
 export const pendingComparisonSchema = z.object({
   intent: intentSchema,
-  limitation: z.enum(['attributes', 'medical']),
+  limitation: z.enum(['attributes', 'medical', 'purchase-date']),
 }).strict();
 export const chatContextSchema = z.object({
   intent: intentSchema,

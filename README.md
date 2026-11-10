@@ -6,7 +6,7 @@ Independent PayPal AI Hackathon prototype for discovering fictional merchant cas
 
 ## Status
 
-Home, merchant Savings directory, floating chatbot, deterministic reward calculations, structured AI backend, server-side PayPal sandbox order/capture flow, and payment result page are implemented. The current confirmation handoff is covered by 270 local tests, including synthetic multi-turn fixtures. The earlier 200-prompt development audit is historical and was not rerun in full for the current planner. Actual sandbox order creation and user-operated $106/$108 captures were verified historically; fresh buyer approval/capture for the latest build remains separate. Missing configuration leaves live features disabled; the rule-based demo remains explicitly labeled. No real purchases or rewards are issued.
+Home, merchant Savings directory, floating chatbot, deterministic reward calculations, structured AI backend, server-side PayPal sandbox order/capture flow, and payment result page are implemented. The current confirmation handoff is covered by 277 local tests, including synthetic multi-turn fixtures. The earlier 200-prompt development audit is historical and was not rerun in full for the current planner. Actual sandbox order creation and user-operated $106/$108 captures were verified historically; fresh buyer approval/capture for the latest build remains separate. Missing configuration leaves live features disabled; the rule-based demo remains explicitly labeled. No real purchases or rewards are issued.
 
 ## Try the interface
 
@@ -41,7 +41,7 @@ pnpm typecheck
 pnpm build
 ```
 
-The 270 automated tests use injected fake provider responses; they do not spend API credit or contact PayPal. Separate [hosted live acceptance results](docs/LIVE_ACCEPTANCE_RESULTS.json) record 12 checks against `gpt-4o-mini` with `offerscout-intent-v4`. These are a small development acceptance set, not a general accuracy estimate or proof of completed payment.
+The 277 automated tests use injected fake provider responses; they do not spend API credit or contact PayPal. Separate [hosted live acceptance results](docs/LIVE_ACCEPTANCE_RESULTS.json) record 12 checks against `gpt-4o-mini` with `offerscout-intent-v4`. These are a small development acceptance set, not a general accuracy estimate or proof of completed payment.
 
 ## Architecture
 
@@ -74,7 +74,7 @@ MIT license. Not affiliated with or endorsed by PayPal.
 
 Run `pnpm catalog:export` to regenerate the downloadable catalog. Dev/build also regenerate it. See [research and data provenance](docs/OFFER_DATA_RESEARCH.md), [28 hand-labeled mixed-offer calculations and 12 intent examples](public/data/offerscout-mixed-offer-cases.json), and the original [labeled edge cases](public/data/offerscout-labelled-examples.json). No real merchant affiliation or current offer rate is implied.
 
-The older 12-case v4 hosted report used the original three-merchant catalog; rankings and empty-result expectations from that report do not describe the expanded catalog. Current live source uses `offerscout-plan-v20`; the older v9 intent interpreter remains only as historical/test support. Product names are restricted to the catalog enum. Percentage rates, fixed-dollar benefits, and payment versus after-cashback budgets remain separate constraints. Recommendations exclude expired, below-minimum, excluded, or unverified new-customer offers.
+The older 12-case v4 hosted report used the original three-merchant catalog; rankings and empty-result expectations from that report do not describe the expanded catalog. Current live source uses `offerscout-plan-v21`; the older v9 intent interpreter remains only as historical/test support. Product names are restricted to the catalog enum. Percentage rates, fixed-dollar benefits, and payment versus after-cashback budgets remain separate constraints. Recommendations exclude expired, below-minimum, excluded, or unverified new-customer offers.
 
 [Current expanded-catalog live report](docs/CATALOG_LIVE_ACCEPTANCE_RESULTS.json): 14/14 actual AI checks passed; three new-kind sandbox orders were created successfully. Buyer approval/capture of the new discount kinds remains unverified. The separate completed $106/$108 captures used original cashback examples.
 
@@ -97,10 +97,10 @@ Historical November 4 evidence: [200-case semantic repair results](docs/CHATBOT_
 
 The chatbot retains a pending price comparison after explaining an unsupported requirement. Explicit acceptance shows catalog price comparisons with unverified attributes disclosed. Declining, unrelated help and a new search clear the pending question. Confirming never authorizes payment. Pending state contains catalog filters and a limitation code, not free-text personal history.
 
-All 270 local tests pass, including 12 synthetic conversation regressions. Raw conversation reports are not distributed. The earlier 200-case audit is historical and does not certify the current version. Browser click-throughs and a fresh buyer capture remain separate checks.
+All 277 local tests pass, including 12 synthetic conversation regressions. Raw conversation reports are not distributed. The earlier 200-case audit is historical and does not certify the current version. Browser click-throughs and a fresh buyer capture remain separate checks.
 
 Use invented test fixtures only. Do not copy personal chat messages into source, test reports or commit messages.
 
 ### Purchase-date limitations
 
-The AI planner identifies requests tied to another purchase date, a seasonal sale or real current availability. These receive a purchase-date limitation with no recommended offer cards: the frozen October 17 catalog cannot establish those deals. Ask for a reference-date sample comparison to browse the fictional examples. This is a disclosed limitation, not future-date offer support. Five automated regressions verify that this limitation blocks recommendation and pending-confirmation paths.
+The planner identifies requests tied to a seasonal sale, another purchase date or real current availability. The assistant discloses that the frozen October 17 catalog cannot establish those deals, retains supported filters and offers a sample comparison. A budget reply or explicit acceptance displays reference-date examples with an additional timing warning; a renewed future-date requirement does not accept that proposal. No real current discount or future deal is verified. Twelve purchase-timing regressions cover the limitation and sample-comparison handoff.
